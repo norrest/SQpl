@@ -137,7 +137,7 @@
                 <?php if ((int)$exitCode === 0): ?>
                     <div class="status ok">✅ Update complete!</div>
                 <?php else: ?>
-                    <div class="status bad">❌ Update failed (exit code: <?= htmlspecialchars((string)($exitCode ?? 'unknown')) ?>)</div>
+                    <div class="status bad">❌ Update failed (exit code: <?php echo isset($exitCode) ? $exitCode : 'unknown'; ?>)</div>
                 <?php endif; ?>
 
                 <a href="update.php" class="btn-update">🔄 Update again</a>
