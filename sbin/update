@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 set -e  # Exit on any error
 RED=$(tput setaf 1 2>/dev/null || echo "")
 RESET=$(tput sgr 0 2>/dev/null || echo "")
@@ -22,14 +22,23 @@ cp -Rf /update/tmpi/usr/* /usr/
 cp -f /update/tmpi/50x.html /usr/share/nginx/html/
 cp -f /update/tmpi/50x.html /etc/nginx/html/
 
-echo "${RED}[+] Cleanup & MPD setup${RESET}"
+systemctl daemon-reload
 
-mkdir -p /var/lib/mpd/{playlists,music/WEBRADIO}
+[ -f /sbin/fixes ] || { echo "${RED}[!] /sbin/fixes not found${RESET}"; exit 1; }
+chmod +x /sbin/fixes 2>/dev/null || true
+bash /sbin/fixes
+
+echo "${RED}[+] Cleanup & MPD setup${RESET}"
+rm -rf /update/tmpi /sbin/fixes
+mkdir -p /var/lib/mpd/playlists /var/lib/mpd/music/WEBRADIO
 chmod -R 777 /var/lib/mpd
 
 echo "${RED}[+] Start services${RESET}"
 systemctl start mpd
 service nginx restart
-service php*-fpm restart 2>/dev/null || service php5-fpm restart 2>/dev/null || true
+
+for f in /etc/init.d/php*-fpm; do
+  [ -x "$f" ] && service "$(basename "$f")" restart || true
+done
 
 echo "${RED}[+] DONE perfectly! Support: https://norrest.github.io/StereoQ/${RESET}"
