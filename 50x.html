@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>StereoQ - System Status</title>
+    <link rel="stylesheet" href="panels.css">
+    <style>
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .status-container { text-align: center; padding: 40px; max-width: 500px; }
+        h1 { color: #ff6060; font-size: 28px; margin: 0 0 15px; }
+        p { font-size: 16px; color: #7AF6BA; margin: 10px 0; }
+        .btn { background: #4BBE87; color: #fff; border: none; padding: 12px 30px; margin: 10px; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn:hover { background: #14E681; }
+        .btn-grey { background: #7A848E; }
+        .btn-grey:hover { background: #525C66; }
+    </style>
+</head>
+<body>
+    <div class="status-container">
+        <div style="font-size: 60px; margin-bottom: 20px;">⚠️</div>
+        
+        <h1>System Unavailable</h1>
+        <p>Player is OFF, Rebooting, or Page Not Found</p>
+        <p style="font-size: 14px; color: #888;">Please wait and refresh the page</p>
+        
+        <div style="margin-top: 30px;">
+            <button class="btn" onclick="location.reload();">🔄 Refresh</button>
+            <a href="/index.php" class="btn btn-grey">← Home</a>
+        </div>
+    </div>
+
+    <script>
+        setTimeout(function() { location.reload(); }, 5000);
+    </script>
+</body>
+</html>
