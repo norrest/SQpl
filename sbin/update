@@ -1,36 +1,37 @@
 #! /bin/sh
-sudo mpc stop
-systemctl stop mpd.socket 
-sudo /etc/init.d/mpd stop
-echo "$(tput setaf 1)[+] Updating system...$(tput sgr 0)"
-echo "$(tput setaf 1)[+] Cloning web updates for StereoQ player from github$(tput sgr 0)"
-mkdir -p /update/tmpi
-git clone https://github.com/norrest/SQpl.git /update/tmpi/
-sudo chmod -R 777 /update/tmpi
-sudo rm -R /etc/apt/sources.list.d/
-sudo cp -pfR /update/tmpi/etc/ /
-sudo cp -pfR /update/tmpi/var/ /
-sudo cp -pfR /update/tmpi/sbin/ /
-sudo cp -pfR /update/tmpi/bin/ /
-sudo cp -pfR /update/tmpi/usr/ /
-sudo cp -pfR /update/tmpi/50x.html /usr/share/nginx/html/
-sudo cp -pfR /update/tmpi/50x.html /etc/nginx/html/
-sudo bash /sbin/dbupdate
-apt-get -f install
-apt-get -y install cifs-utils
-apt-get install debian-keyring debian-archive-keyring
-apt-get -y update
-apt-get -y install ethtool
-apt-get -y install dos2unix
-sleep 1
-sudo rm -R /update/tmpi
-sudo rm -R /sbin/dbupdate
-sudo mkdir /var/lib/mpd/playlists/
-sudo chmod -R 777 /var/lib/mpd/playlists/
-sudo mkdir /var/lib/mpd/music/WEBRADIO/
-sudo chmod -R 777 /var/lib/mpd/music/WEBRADIO/
-/etc/init.d/mpd start
-echo "$(tput setaf 1)[+] If you see no errors, everything is done perfectly!"
-sudo service php5-fpm restart && sudo service nginx restart
-echo "If you see many errors, please contact support "
-exit 0
+set -e  # Exit on any error
+RED=$(tput setaf 1 2>/dev/null || echo "")
+RESET=$(tput sgr 0 2>/dev/null || echo "")
+
+echo "${RED}[+] Stop MPD${RESET}"
+mpc stop 2>/dev/null || true
+systemctl stop mpd.socket mpd 2>/dev/null || true
+
+echo "${RED}[+] Clone StereoQ player updates${RESET}"
+rm -rf /update/tmpi
+git clone --depth 1 https://github.com/norrest/SQpl.git /update/tmpi/
+chmod -R 777 /update/tmpi
+
+echo "${RED}[+] Install files${RESET}"
+rm -rf /etc/apt/sources.list.d/* 2>/dev/null || true
+cp -Rf /update/tmpi/etc/* /etc/
+cp -Rf /update/tmpi/var/* /var/
+cp -Rf /update/tmpi/sbin/* /sbin/
+cp -Rf /update/tmpi/bin/* /bin/
+cp -Rf /update/tmpi/usr/* /usr/
+cp -f /update/tmpi/50x.html /usr/share/nginx/html/
+cp -f /update/tmpi/50x.html /etc/nginx/html/
+
+bash /sbin/dbupdate 2>/dev/null || true
+
+echo "${RED}[+] Cleanup & MPD setup${RESET}"
+rm -rf /update/tmpi /sbin/dbupdate
+mkdir -p /var/lib/mpd/{playlists,music/WEBRADIO}
+chmod -R 777 /var/lib/mpd
+
+echo "${RED}[+] Start services${RESET}"
+systemctl start mpd
+service nginx restart
+service php*-fpm restart 2>/dev/null || service php5-fpm restart 2>/dev/null || true
+
+echo "${RED}[+] DONE perfectly! Support: https://norrest.github.io/StereoQ/${RESET}"
