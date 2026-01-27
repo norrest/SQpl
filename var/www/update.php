@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>StereoQ Player Update</title>
+    <link rel="stylesheet" href="panels.css">
+    <style>
+        .update-container {
+            padding: 40px 0;
+            text-align: center;
+            background: #2B3137;
+            min-height: 100vh;
+        }
+        .terminal {
+            background: #11181F;
+            border: 2px solid #34495E;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            max-height: 500px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #fff;
+            white-space: pre-wrap;
+            text-align: left;
+        }
+        .red { color: #f00 !important; }
+        .btn-update {
+            background: #4BBE87;
+            color: #fff !important;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+        }
+        .btn-update:hover {
+            background: #14E681;
+            color: #fff !important;
+        }
+        .status {
+            font-size: 20px;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: rgba(75,190,135,0.3); color: #4BBE87; }
+        .updating { background: rgba(255,255,0,0.2); color: #ff0; }
+    </style>
+</head>
+<body>
+    <div class="container update-container">
+        
+        <?php if (!isset($_POST['update'])): ?>
+            <h1 style="color: #00FF84; font-size: 36px;">StereoQ Player Update</h1>
+            <p style="color: #7AF6BA; font-size: 18px;">Ready to update?</p>
+            
+            <form method="POST" style="margin: 30px 0;">
+                <button type="submit" name="update" value="1" class="btn-update">
+                    🚀 Update StereoQ
+                </button>
+            </form>
+            
+        <?php else: ?>
+            <div class="status updating">⏳ Updating StereoQ... Please wait!</div>
+            
+            <div id="terminal" class="terminal">
+                <?php
+                // Realtyme see
+                ob_implicit_flush(true);
+                ob_end_flush();
+                echo "[+] Update started at " . date('H:i:s') . "\n";
+                
+                $output = shell_exec('sudo -n /bin/bash /sbin/update 2>&1');
+                echo $output;
+                ?>
+            </div>
+            
+            <div class="status success">✅ Update complete!</div>
+            <a href="update.php" class="btn-update">🔄 Update again</a>
+            <a href="/" class="btn-update" style="background: #7A848E;">← Back Home</a>
+        <?php endif; ?>
+        
+    </div>
+</body>
+</html>
