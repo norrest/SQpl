@@ -69,25 +69,66 @@
                 </button>
             </form>
             
-        <?php else: ?>
-            <div class="status updating">⏳ Updating StereoQ... Please wait!</div>
-            
-            <div id="terminal" class="terminal">
-                <?php
-                // Realtyme see
-                ob_implicit_flush(true);
-                while (ob_get_level() > 0) { ob_end_flush(); }
-                echo "[+] Update started at " . date('H:i:s') . "\n";
-                
-                $output = shell_exec('sudo -n /bin/bash /sbin/update 2>&1');
-                echo $output;
-                ?>
-            </div>
-            
-            <div class="status success">✅ Update complete!</div>
-            <a href="update.php" class="btn-update">🔄 Update again</a>
-            <a href="/" class="btn-update" style="background: #7A848E;">← Back Home</a>
-        <?php endif; ?>
+<?php else: ?>
+    <div class="status updating">⏳ Updating StereoQ... Please wait!</div>
+
+    <div id="terminal" class="terminal"><?php
+        ob_implicit_flush(true);
+        while (ob_get_level() > 0) { ob_end_flush(); }
+        echo "[+] Update started at " . date('H:i:s') . "\n";
+        @ini_set('output_buffering', 'off');
+        @ini_set('zlib.output_compression', '0');
+
+        $cmd = 'sudo -n /bin/bash /sbin/update';
+        $descriptorspec = [
+            0 => ["pipe", "r"],
+            1 => ["pipe", "w"],
+            2 => ["pipe", "w"],
+        ];
+
+        $proc = proc_open($cmd, $descriptorspec, $pipes);
+        $exitCode = 1;
+
+        if (is_resource($proc)) {
+            fclose($pipes[0]);
+            stream_set_blocking($pipes[1], false);
+            stream_set_blocking($pipes[2], false);
+
+            while (true) {
+                $out = stream_get_contents($pipes[1]);
+                $err = stream_get_contents($pipes[2]);
+                if ($out !== '') echo $out;
+                if ($err !== '') echo $err;
+                flush();
+
+                $status = proc_get_status($proc);
+                if (!$status['running']) {
+                    $exitCode = $status['exitcode'];
+                    break;
+                }
+                usleep(100000);
+            }
+
+            fclose($pipes[1]);
+            fclose($pipes[2]);
+            proc_close($proc);
+
+            echo "\n[+] Exit code: {$exitCode}\n";
+        } else {
+            echo "[!] Failed to start update process\n";
+        }
+    ?></div>
+
+    <?php if (isset($exitCode) && $exitCode === 0): ?>
+        <div class="status success">✅ Update complete!</div>
+    <?php else: ?>
+        <div class="status error">❌ Update failed (exit code: <?= htmlspecialchars($exitCode ?? 'unknown') ?>)</div>
+    <?php endif; ?>
+
+    <a href="update.php" class="btn-update">🔄 Update again</a>
+    <a href="/" class="btn-update" style="background: #7A848E;">← Back Home</a>
+<?php endif; ?>
+
         
     </div>
 </body>
