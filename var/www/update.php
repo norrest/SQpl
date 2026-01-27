@@ -82,11 +82,14 @@
                 <div class="status updating">⏳ Updating StereoQ... Please wait!</div>
 
                 <div id="terminal" class="terminal"><?php
+                    set_time_limit(3600);
+                    ignore_user_abort(true);
+                
                     ob_implicit_flush(true);
                     while (ob_get_level() > 0) { ob_end_flush(); }
                     @ini_set('output_buffering', 'off');
                     @ini_set('zlib.output_compression', '0');
-
+                    @ini_set('max_execution_time', '3600');
                     echo "[+] Update started at " . date('H:i:s') . "\n";
 
                     $cmd = 'sudo -n /bin/bash /sbin/update';
