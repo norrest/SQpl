@@ -126,7 +126,7 @@
 
                         fclose($pipes[1]);
                         fclose($pipes[2]);
-                        proc_close($proc);
+                        $exitCode = proc_close($proc);
 
                         echo "\n[+] Exit code: {$exitCode}\n";
                     } else {
