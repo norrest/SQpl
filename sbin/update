@@ -1,0 +1,36 @@
+#! /bin/sh
+sudo mpc stop
+systemctl stop mpd.socket 
+sudo /etc/init.d/mpd stop
+echo "$(tput setaf 1)[+] Updating system...$(tput sgr 0)"
+echo "$(tput setaf 1)[+] Cloning web updates for StereoQ player from github$(tput sgr 0)"
+mkdir -p /update/tmpi
+git clone https://github.com/norrest/SQpl.git /update/tmpi/
+sudo chmod -R 777 /update/tmpi
+sudo rm -R /etc/apt/sources.list.d/
+sudo cp -pfR /update/tmpi/etc/ /
+sudo cp -pfR /update/tmpi/var/ /
+sudo cp -pfR /update/tmpi/sbin/ /
+sudo cp -pfR /update/tmpi/bin/ /
+sudo cp -pfR /update/tmpi/usr/ /
+sudo cp -pfR /update/tmpi/50x.html /usr/share/nginx/html/
+sudo cp -pfR /update/tmpi/50x.html /etc/nginx/html/
+sudo bash /sbin/dbupdate
+apt-get -f install
+apt-get -y install cifs-utils
+apt-get install debian-keyring debian-archive-keyring
+apt-get -y update
+apt-get -y install ethtool
+apt-get -y install dos2unix
+sleep 1
+sudo rm -R /update/tmpi
+sudo rm -R /sbin/dbupdate
+sudo mkdir /var/lib/mpd/playlists/
+sudo chmod -R 777 /var/lib/mpd/playlists/
+sudo mkdir /var/lib/mpd/music/WEBRADIO/
+sudo chmod -R 777 /var/lib/mpd/music/WEBRADIO/
+/etc/init.d/mpd start
+echo "$(tput setaf 1)[+] If you see no errors, everything is done perfectly!"
+sudo service php5-fpm restart && sudo service nginx restart
+echo "If you see many errors, please contact support "
+exit 0
