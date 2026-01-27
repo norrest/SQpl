@@ -76,7 +76,7 @@
                 <?php
                 // Realtyme see
                 ob_implicit_flush(true);
-                ob_end_flush();
+                while (ob_get_level() > 0) { ob_end_flush(); }
                 echo "[+] Update started at " . date('H:i:s') . "\n";
                 
                 $output = shell_exec('sudo -n /bin/bash /sbin/update 2>&1');
