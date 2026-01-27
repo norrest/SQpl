@@ -35,10 +35,5 @@ chmod -R 777 /var/lib/mpd
 
 echo "${RED}[+] Start services${RESET}"
 systemctl start mpd
-service nginx restart
-
-for f in /etc/init.d/php*-fpm; do
-  [ -x "$f" ] && service "$(basename "$f")" restart || true
-done
 
 echo "${RED}[+] DONE perfectly! Support: https://norrest.github.io/StereoQ/${RESET}"
