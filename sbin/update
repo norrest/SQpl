@@ -22,10 +22,8 @@ cp -Rf /update/tmpi/usr/* /usr/
 cp -f /update/tmpi/50x.html /usr/share/nginx/html/
 cp -f /update/tmpi/50x.html /etc/nginx/html/
 
-bash /sbin/dbupdate 2>/dev/null || true
-
 echo "${RED}[+] Cleanup & MPD setup${RESET}"
-rm -rf /update/tmpi /sbin/dbupdate
+
 mkdir -p /var/lib/mpd/{playlists,music/WEBRADIO}
 chmod -R 777 /var/lib/mpd
 
