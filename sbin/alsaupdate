@@ -1,0 +1,34 @@
+#!/bin/sh
+set -eu
+
+alsalibver="$(grep VERSION_STR /usr/include/alsa/version.h | sed -e 's/[^0-9]//g')"
+newveralsalib='12153'
+
+rm -rf alsa-lib-*
+
+if [ "$alsalibver" != "$newveralsalib" ]; then
+  echo "$alsalibver"
+  echo "$newveralsalib"
+  echo "need to update"
+
+  apt-get -y install automake libtool
+
+  curl -O ftp://ftp.alsa-project.org/pub/lib/alsa-lib-1.2.15.3.tar.bz2
+  tar xvjf alsa-lib-1.2.15.3.tar.bz2
+
+  cd alsa-lib-1.2.15.3
+  ./configure
+  make
+  make install
+
+  # фикс из прошлого шага
+  cp -f /usr/lib/libasound.so.2.0.0 /usr/lib/arm-linux-gnueabihf/libasound.so.2.0.0
+  ln -sf libasound.so.2.0.0 /usr/lib/arm-linux-gnueabihf/libasound.so.2
+  ldconfig
+else
+  echo "$newveralsalib"
+  echo "no need to update"
+fi
+
+echo "finished"
+exit 0
