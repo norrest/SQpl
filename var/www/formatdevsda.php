@@ -1,3 +1,18 @@
+<?php
+// Reboot action must happen before any HTML output
+if (isset($_POST['reboot']) && $_POST['reboot'] == '1') {
+  @ini_set('output_buffering','off');
+  @ini_set('zlib.output_compression',0);
+
+  // Run reboot in background so we can redirect immediately
+  // sudoers requirement (example):
+  //   www-data ALL=(root) NOPASSWD: /bin/reboot
+  exec('sudo -n /bin/reboot >/dev/null 2>&1 &');
+
+  header('Location: /');
+  exit;
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -64,7 +79,26 @@ button:hover{
 
 <body>
 
-<?php if (!isset($_POST['format'])): ?>
+<?php
+$done = isset($_GET['done']) && $_GET['done'] == '1';
+$doFormat = isset($_POST['format']) && $_POST['format'] == '1';
+$self = $_SERVER['PHP_SELF'];
+?>
+
+<?php if ($done && !$doFormat): ?>
+
+<div class="notice">
+  Format operation is marked as completed.<br>
+  On this player, <b>/dev/sda</b> is the default attached storage used for your music library.<br>
+  You can reboot the player now or go back to the home page.
+</div>
+
+<form method="POST" class="actions" action="<?php echo htmlspecialchars($self, ENT_QUOTES); ?>">
+  <button type="submit" name="reboot" value="1">Reboot Player</button>
+  <a class="btn" href="/">← Back</a>
+</form>
+
+<?php elseif (!$doFormat): ?>
 
 <div class="notice">
   You are about to format <b>/dev/sda</b> and create a single <b>ext4</b> partition spanning the whole disk.<br>
@@ -73,8 +107,9 @@ button:hover{
   The process may take a while. Do not close this page until it finishes.
 </div>
 
-<form method="POST" class="actions">
+<form method="POST" class="actions" action="<?php echo htmlspecialchars($self, ENT_QUOTES); ?>">
   <button type="submit" name="format" value="1">FORMAT /dev/sda</button>
+  <a class="btn" href="/">← Back</a>
 </form>
 
 <?php else: ?>
@@ -102,12 +137,11 @@ flush();
 
   sudoers (for sudo -n):
     www-data ALL=(root) NOPASSWD: /sbin/formatdevsda
+    www-data ALL=(root) NOPASSWD: /bin/reboot
 */
 
 $cmd = 'sudo -n /sbin/formatdevsda 2>&1';
 $h = popen($cmd, 'r');
-
-$raw = null;
 
 if ($h) {
   while (!feof($h)) {
@@ -124,19 +158,33 @@ if ($h) {
   if (function_exists('pcntl_wexitstatus')) {
     $exitCode = pcntl_wexitstatus($raw);
   } else {
-    // fallback: common case where exit code is shifted
     if (is_int($raw) && $raw > 255) $exitCode = $raw >> 8;
   }
 
   echo "\n[+] Exit code: ".$exitCode."\n";
+  if ($exitCode === 0) {
+    echo "[+] DONE perfectly! Support: https://norrest.github.io/StereoQ/\n";
+  } else {
+    echo "[!] Format finished with errors. Check the log above.\n";
+  }
 } else {
   echo "[!] Cannot start /sbin/formatdevsda\n";
 }
 ?></div>
 
 <div class="actions">
+  <form method="POST" action="<?php echo htmlspecialchars($self, ENT_QUOTES); ?>" style="display:inline;">
+    <button type="submit" name="reboot" value="1">Reboot Player</button>
+  </form>
   <a class="btn" href="/">← Back</a>
 </div>
+
+<script>
+  // Prevent browser refresh from re-submitting the POST and starting formatting again
+  if (history.replaceState) {
+    history.replaceState(null, "", "<?php echo htmlspecialchars($self, ENT_QUOTES); ?>?done=1");
+  }
+</script>
 
 <?php endif; ?>
 
