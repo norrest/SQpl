@@ -69,9 +69,6 @@
                 <a href="settings.php"><i class="fa fa-wrench sx"></i>System Settings</a>
             </li>
 
-            <li>
-                <a href="#poweroff-modal" data-toggle="modal"><i class="fa fa-power-off sx"></i>Power Off</a>
-            </li>
 
             <li>
                 <a href="#service-menu-modal" data-toggle="modal"><i class="fa fa-cogs sx"></i>Service Menu</a>
@@ -84,10 +81,7 @@
             <br>
 
             <li>
-                <a href="stopweb.php"
-                   onclick="return confirm('Disable the web interface? Useful for UPnP (BubbleUPnP, MinimServer) and Roon when web control is not needed. To re-enable, power off the player and turn it on again.')">
-                    Disable Web UI
-                </a>
+                <a href="#poweroff-modal" data-toggle="modal"><i class="fa fa-power-off sx"></i>Power Off</a>
             </li>
         </ul>
     </div>
