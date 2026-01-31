@@ -1,0 +1,109 @@
+#!/bin/sh
+set -eu
+
+DISK="/dev/sda"
+LABEL="DATA"
+WIPE_FIRST_MIB=16
+WIPE_LAST_MIB=16
+
+log() { echo "[reinit] $*"; }
+die() { echo "[reinit][ERROR] $*" >&2; exit 1; }
+
+[ "$(id -u)" -eq 0 ] || die "run as root"
+[ -b "$DISK" ] || die "no such block device: $DISK"
+
+TYPE="$(lsblk -no TYPE "$DISK" 2>/dev/null || true)"
+[ "$TYPE" = "part" ] && die "DISK must be a whole disk, not a partition: $DISK"
+
+# refuse if DISK is root disk
+ROOT_SRC="$(findmnt -n -o SOURCE / 2>/dev/null || true)"
+if [ -z "$ROOT_SRC" ]; then
+  ROOT_SRC="$(mount | awk '$3=="/"{print $1; exit}')"
+fi
+[ -n "$ROOT_SRC" ] || die "cannot determine root source"
+
+ROOT_PK="$(lsblk -no PKNAME "$ROOT_SRC" 2>/dev/null || true)"
+[ -n "$ROOT_PK" ] || die "cannot determine root disk"
+ROOT_DISK="/dev/$ROOT_PK"
+
+[ "$DISK" = "$ROOT_DISK" ] && die "refusing to wipe root disk: $DISK"
+
+log "target disk: $DISK"
+lsblk -o NAME,SIZE,MODEL,TYPE,MOUNTPOINT,FSTYPE "$DISK" || true
+
+# swapoff on /dev/sda*
+log "swapoff (if any) on $DISK"
+if command -v swapon >/dev/null 2>&1; then
+  swapon --noheadings --show=NAME 2>/dev/null \
+    | awk -v d="$DISK" '$1 ~ "^"d {print $1}' \
+    | while read -r sw; do
+        [ -n "$sw" ] && swapoff "$sw" 2>/dev/null || true
+      done
+fi
+
+# unmount anything from /dev/sda
+log "unmount anything from $DISK"
+lsblk -nrpo MOUNTPOINT "$DISK" 2>/dev/null \
+  | awk 'NF{print}' \
+  | sort -r \
+  | while read -r mp; do
+      umount -fl "$mp" 2>/dev/null || true
+    done
+
+# wipe signatures and partition tables
+if command -v wipefs >/dev/null 2>&1; then
+  log "wipefs signatures"
+  wipefs -a "$DISK" 2>/dev/null || true
+fi
+
+if command -v sgdisk >/dev/null 2>&1; then
+  log "sgdisk zap-all"
+  sgdisk --zap-all "$DISK" 2>/dev/null || true
+fi
+
+# zero first and last MiB
+log "dd zero first ${WIPE_FIRST_MIB} MiB"
+dd if=/dev/zero of="$DISK" bs=1M count="$WIPE_FIRST_MIB" conv=fsync status=progress
+
+log "dd zero last ${WIPE_LAST_MIB} MiB"
+SIZE_BYTES="$(blockdev --getsize64 "$DISK" 2>/dev/null || echo 0)"
+[ "$SIZE_BYTES" -gt 0 ] || die "blockdev failed for $DISK"
+SIZE_MIB=$((SIZE_BYTES / 1024 / 1024))
+if [ "$SIZE_MIB" -gt $((WIPE_LAST_MIB + 4)) ]; then
+  SEEK_MIB=$((SIZE_MIB - WIPE_LAST_MIB))
+  dd if=/dev/zero of="$DISK" bs=1M seek="$SEEK_MIB" count="$WIPE_LAST_MIB" conv=fsync status=progress
+else
+  log "disk too small, skipping last wipe"
+fi
+
+# create single GPT partition 1MiB..100%
+log "create single GPT partition"
+if command -v parted >/dev/null 2>&1; then
+  parted -s "$DISK" mklabel gpt
+  parted -s -a optimal "$DISK" mkpart primary ext4 1MiB 100%
+elif command -v sfdisk >/dev/null 2>&1; then
+  printf "label: gpt\n, , 8300\n" | sfdisk "$DISK"
+else
+  die "need parted or sfdisk"
+fi
+
+partprobe "$DISK" 2>/dev/null || true
+udevadm settle 2>/dev/null || true
+
+case "$DISK" in
+  *[0-9]) PART="${DISK}p1" ;;
+  *) PART="${DISK}1" ;;
+esac
+
+[ -b "$PART" ] || die "partition node not found: $PART"
+
+# format ext4
+log "mkfs.ext4 on $PART"
+mkfs.ext4 -F -L "$LABEL" "$PART"
+
+sync
+
+log "done"
+lsblk -o NAME,SIZE,MODEL,TYPE,MOUNTPOINT,FSTYPE,LABEL "$DISK" || true
+echo "[+] DONE perfectly! Support: https://norrest.github.io/StereoQ/"
+exit 0
