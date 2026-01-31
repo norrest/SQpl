@@ -1,0 +1,86 @@
+<div class="container credits">
+  <h1>Library</h1>
+
+  <form>
+    <p>
+      <button class="btn btn-large btn-primary" formaction="usb.php">
+        <i class="fa fa-refresh sx"></i> Refresh Internal Library (SATA / SSD)
+      </button>
+    </p>
+
+    <p>
+      <button class="btn btn-large btn-primary" formaction="nas.php">
+        <i class="fa fa-refresh sx"></i> Refresh NAS Library (Network Shares)
+      </button>
+    </p>
+
+    <p>
+      <button class="btn btn-large btn-primary" type="submit" name="updatempd" value="1" id="updatempddb">
+        <i class="fa fa-refresh sx"></i> Full Library Rescan
+      </button>
+    </p>
+
+    <br>
+
+    <p>
+      <button class="btn btn-large" formaction="stop.php">
+        Force Stop Scan (wait a couple of minutes after clicking)
+      </button>
+    </p>
+    <span class="help-block">
+      Use this if you mounted a very large share or files that MPD cannot index and the scan never finishes.
+      Stop the scan, then adjust your network mounts (select a different folder and/or move non-indexable files elsewhere).
+    </span>
+
+    <p>
+      <button class="btn btn-large" formaction="delete.php">
+        Force Remove Network Mounts
+      </button>
+    </p>
+    <span class="help-block">
+      Use this if a mount was configured incorrectly and the player keeps trying to reconnect, causing freezes even after editing settings.
+    </span>
+  </form>
+
+  <div class="form-actions">
+    StereoQ Player builds and updates its music database using these sources:
+    <br>
+  </div>
+
+  <div class="tile txtsx">
+    <ul>
+      <li>
+        <strong>USB</strong><br>
+        <span class="help-block">
+          Local storage (SATA HDD / SSD). The section is historically called “USB” in Volumio-based systems.
+        </span>
+      </li>
+
+      <li>
+        <strong>WebRadio</strong><br>
+        <span class="help-block">
+          Locally saved web radio playlists.
+        </span>
+      </li>
+
+      <li>
+        <strong>NAS</strong><br>
+        <span class="help-block">
+          Connected network shares (SMB/CIFS, NFS, etc.).
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <h2>NAS Mounts</h2>
+  <p>Configured network mounts (click to edit)</p>
+
+  <form method="post">
+    $_mounts
+    <p>
+      <a href="sources.php?p=add" class="btn btn-large btn-primary btn-block" data-ajax="false">
+        <i class="fa fa-plus sx"></i> Add New Mount
+      </a>
+    </p>
+  </form>
+</div>

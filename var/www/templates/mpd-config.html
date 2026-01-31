@@ -1,0 +1,204 @@
+<div class="container">
+  <h1>StereoQ Player Playback Configuration</h1>
+
+  <p>
+    If you change settings by mistake, you can
+    <a data-toggle="modal" href="#mpd-config-defaults">reset to defaults</a>.
+    After resetting, select the correct options and press Save.
+  </p>
+
+  <form class="form-horizontal" data-validate="parsley" action="" method="post">
+    <fieldset>
+      <legend>Audio Output</legend>
+      <p>
+        Select your USB DAC or USB audio device.
+        StereoQ Player uses only one output at a time.
+      </p>
+
+      <br>
+
+      <div class="control-group">
+        <label class="control-label" for="device">Audio Output</label>
+        <div class="controls">
+          <select id="device" name="conf[device]" class="input-large">
+            $_mpd_select[device]
+          </select>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Volume Control Mixer</legend>
+
+      <p>
+        Default is Disabled.
+        If you cannot control volume, switch to Software mixer.
+        Note that software volume may reduce audio quality.
+      </p>
+
+      <div class="control-group">
+        <label class="control-label" for="mixer-type">Mixer type</label>
+        <div class="controls">
+          <select id="mixer-type" name="conf[mixer_type]" class="input-large">
+            $_mpd_select[mixer_type]
+          </select>
+
+          <span class="help-block">
+            <strong>Hardware</strong> – Works only with some DACs and allows volume control without reducing sound quality.<br>
+            <strong>Software</strong> – Works with any DAC, but may affect audio quality.<br>
+            <strong>Disabled</strong> – No remote volume control, best quality.
+          </span>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <a href="index.php" class="btn btn-large">Cancel</a>
+      <button type="submit" class="btn btn-primary btn-large" name="save" value="save">Save changes</button>
+    </div>
+
+    <fieldset>
+      <legend>General Music Daemon Options</legend>
+
+      <div class="control-group">
+        <label class="control-label" for="gapless-mp3-playback">Gapless MP3 playback</label>
+        <div class="controls">
+          <select id="gapless-mp3-playback" name="conf[gapless_mp3_playback]" class="input-large">
+            $_mpd_select[gapless_mp3_playback]
+          </select>
+
+          <span class="help-block">
+            If your MP3 tracks end abruptly, try setting this to "no" to fix it.
+          </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="dop">DSD over PCM (DoP)</label>
+        <div class="controls">
+          <select id="dop" name="conf[dop]" class="input-large">
+            $_mpd_select[dop]
+          </select>
+
+          <span class="help-block">
+            Enable DSD over PCM (DoP).
+            If your DAC supports <b>Native DSD</b>, you may want to disable DoP.
+          </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="priority">Audio priority</label>
+        <div class="controls">
+          <select id="priority" name="conf[priority]" class="input-large">
+            $_mpd_select[priority]
+          </select>
+
+          <span class="help-block">
+            Higher values may reduce system stability.
+          </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="volume-normalization">Volume normalization</label>
+        <div class="controls">
+          <select id="volume-normalization" name="conf[volume_normalization]" class="input-large">
+            $_mpd_select[volume_normalization]
+          </select>
+
+          <span class="help-block">
+            If enabled, StereoQ Player will normalize track volume during playback.
+            Default is No.
+          </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="audio-buffer-size">Audio buffer size</label>
+        <div class="controls">
+          <input class="input-large" type="text" id="audio-buffer-size" name="conf[audio_buffer_size]"
+                 value="$_mpd[audio_buffer_size]" data-trigger="change">
+
+          <span class="help-block">
+            Buffer size in KiB. 60000 is the maximum.
+          </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="buffer-before-play">Buffer before play</label>
+        <div class="controls">
+          <select id="buffer-before-play" name="conf[buffer_before_play]" class="input-large">
+            $_mpd_select[buffer_before_play]
+          </select>
+
+          <span class="help-block">
+            How much of the buffer must be filled before playback starts.
+          </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="auto-update">Auto update</label>
+        <div class="controls">
+          <select id="auto-update" name="conf[auto_update]" class="input-large">
+            $_mpd_select[auto_update]
+          </select>
+
+          <span class="help-block">
+            Automatically updates the music database when files change.
+            Not recommended if your device is under heavy load.
+          </span>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Resampling</legend>
+      <p>
+        Configure upsampling or downsampling by selecting the output format.
+        Default is Disabled.
+      </p>
+
+      <br>
+
+      <div class="control-group">
+        <label class="control-label" for="audio-output-format">Audio output format</label>
+        <div class="controls">
+          <select id="audio-output-format" name="conf[audio_output_format]" class="input-large">
+            $_mpd_select[audio_output_format]
+          </select>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <a href="index.php" class="btn btn-large">Cancel</a>
+      <button type="submit" class="btn btn-primary btn-large" name="save" value="save">Save changes</button>
+    </div>
+  </form>
+</div>
+
+<div id="mpd-config-defaults" class="modal hide fade" tabindex="-1" role="dialog"
+     aria-labelledby="mpd-config-defaults-label" aria-hidden="true">
+  <form name="mpdconf_reset" method="post" id="mpdconf_reset">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h3 id="mpd-config-defaults-label">Reset configuration</h3>
+    </div>
+
+    <div class="modal-body">
+      <p>
+        This will reset configuration to the original default values.<br>
+        All custom changes will be lost.
+      </p>
+    </div>
+
+    <div class="modal-footer">
+      <input type="hidden" name="reset" value="1">
+      <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+      <button type="submit" class="btn btn-primary">Continue</button>
+    </div>
+  </form>
+</div>

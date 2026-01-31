@@ -1,0 +1,164 @@
+<div class="container credits">
+  <h1>Add Network Share (NAS Mount)</h1>
+
+  <form class="form-horizontal" data-validate="parsley" action="sources.php" method="post">
+    <fieldset>
+      <legend>
+        $_title
+        <span class=" $_hide ">
+          (
+          <button type="submit" class="btn btn-link btn-nobtn" name="delete" value="1">Remove this mount</button>
+          )
+        </span>
+      </legend>
+
+      <div class="control-group">
+        <div class="alert alert-info $_hideerror ">
+          <i class="icon-remove red sx"></i> Last mount error<br>
+          $_error
+        </div>
+
+        <label class="control-label" for="nas-name">Source name</label>
+        <div class="controls">
+          <input class="input-large" type="text" id="nas-name" name="mount[name]" value="$_name"
+                 data-trigger="change" placeholder="e.g. MUSIC_01_JAZZ">
+          <input type="hidden" name="mount[id]" value="$_id">
+          <input type="hidden" name="mount[action]" value="$_action">
+
+          <span class="help-block">
+            A label for this source. It will appear in the library tree.
+            Use Latin letters, digits, underscore. No spaces or Cyrillic.
+          </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="nas-type">Protocol</label>
+        <div class="controls">
+          <select id="type" name="mount[type]" class="input-large">
+            $_source_select[type]
+          </select>
+          <span class="help-block">
+            SMB/CIFS for Windows shares, NFS for Unix/Linux shares.
+          </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="nas-ip">IP address</label>
+        <div class="controls">
+          <input class="input-large" type="text" id="nas-ip" name="mount[address]" value="$_address"
+                 data-trigger="change" placeholder="e.g. 192.168.1.250">
+
+          <span class="help-block">
+            Enter your NAS/server IP address (digits and dots only).
+            To find it you can use
+            <a target="_blank" rel="noopener" href="https://www.advanced-ip-scanner.com/">Advanced IP Scanner</a>.
+          </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="nas-dir">Remote directory</label>
+        <div class="controls">
+          <input class="input-large" type="text" id="nas-dir" name="mount[remotedir]" value="$_remotedir"
+                 data-trigger="change" placeholder="e.g. Music/Classical">
+
+          <span class="help-block">
+            Folder path on the NAS to scan for music (case sensitive). Do not include the IP here.
+          </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="nas-usr">Username</label>
+        <div class="controls">
+          <input class="input-large" type="text" id="nas-usr" name="mount[username]" value="$_username"
+                 data-trigger="change" placeholder="user">
+
+          <span class="help-block">
+            Optional. Provide only if the share requires authentication (case sensitive).
+          </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="nas-pasw">Password</label>
+        <div class="controls">
+          <input class="input-large" type="password" id="nas-pasw" name="mount[password]" value="$_password"
+                 placeholder="pass" autocomplete="off">
+
+          <span class="help-block">
+            Optional. Provide only if the share requires authentication (case sensitive).
+          </span>
+        </div>
+      </div>
+
+      <p>
+        <a href="#notarget" class="show-advanced-config">
+          <i class="fa fa-plus"></i> <span>Show advanced options</span>
+        </a>
+      </p>
+
+      <div class="advanced-config hide">
+        <div class="control-group">
+          <label class="control-label" for="nas-charset">Charset</label>
+          <div class="controls">
+            <select id="log-level" name="mount[charset]" class="input-large">
+              <option value="utf8" $_charset>UTF-8 (default)</option>
+              <option value="iso8859-1" $_charset>ISO 8859-1</option>
+            </select>
+            <span class="help-block">
+              Change only if you see incorrect characters in folder/file names.
+            </span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="nas-rsize">Rsize</label>
+          <div class="controls">
+            <input class="input-large" type="text" id="nas-rsize" name="mount[rsize]" value="$_rsize"
+                   data-trigger="change" placeholder="32192">
+            <span class="help-block">
+              Change only if you experience playback issues (pops/clicks). Defaults are usually best.
+            </span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="nas-wsize">Wsize</label>
+          <div class="controls">
+            <input class="input-large" type="text" id="nas-wsize" name="mount[wsize]" value="$_wsize"
+                   data-trigger="change" placeholder="32384">
+            <span class="help-block">
+              Change only if you experience playback issues (pops/clicks). Defaults are usually best.
+            </span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="options">Mount flags</label>
+          <div class="controls">
+            <input class="input-large" type="text" id="options" name="mount[options]" value="$_options"
+                   data-trigger="change" placeholder="ro,noatime">
+            <input type="hidden" name="mount[error]" value="$_error">
+
+            <span class="help-block">
+              Advanced mount flags. Leave empty unless you know what you are doing.
+            </span>
+
+            <span class="help-block" style="color:#ffff00;">
+              Tip: if SMB connection fails with newer Windows servers, try forcing SMB version, e.g. <code>vers=2.0</code>
+              (sometimes <code>vers=1.0</code> or <code>vers=3.0</code> may be needed depending on the server).
+            </span>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <a href="sources.php" class="btn btn-large" data-ajax="false">Cancel</a>
+      <button type="submit" class="btn btn-primary btn-large" name="save" value="save">Save mount</button>
+    </div>
+  </form>
+</div>

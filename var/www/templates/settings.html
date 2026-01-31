@@ -1,0 +1,206 @@
+<div class="container">
+  <h1>Settings</h1>
+
+  <form class="form-horizontal" method="post">
+    <fieldset>
+      <legend>Player Name</legend>
+
+      <div class="control-group" id="environment">
+        <div class="control-group">
+          <label class="control-label" for="hostname">Network name</label>
+          <div class="controls">
+            <input class="input-large"
+                   type="text"
+                   id="hostname"
+                   name="hostname"
+                   value="$_hostname"
+                   readonly
+                   autocomplete="off">
+          </div>
+        </div>
+      </div>
+
+      <p>
+        This player is built on the Volumio platform. Out of respect to the original authors,
+        the network name remains unchanged.
+      </p>
+
+      <p class="muted">
+        Note: the name is shown for reference. You can select and copy it, but editing is disabled.
+      </p>
+    </fieldset>
+  </form>
+
+  <form class="form-horizontal" method="post">
+    <fieldset>
+      <legend>Services</legend>
+      <p>Enable or disable selected functions.</p>
+      <br>
+
+      <div class="control-group">
+        <p class="muted">
+          AirPlay lets you stream audio to the player from Apple devices.
+        </p>
+        <label class="control-label">AirPlay</label>
+        <div class="controls">
+          <div class="toggle">
+            <label class="toggle-radio" for="toggleshairport2">ON</label>
+            $_system_select[shairport1]
+            <label class="toggle-radio" for="toggleshairport1">OFF</label>
+            $_system_select[shairport0]
+          </div>
+
+          <span class="help-block">
+            Enables <strong>shairport-sync</strong>. Turn OFF if you never use AirPlay.
+          </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <p class="muted">
+          Allows remote control of the player using UPnP controller apps (Play To).
+        </p>
+        <label class="control-label">UPnP Control</label>
+        <div class="controls">
+          <div class="toggle">
+            <label class="toggle-radio" for="toggleupnpmpdcli2">ON</label>
+            $_system_select[upnpmpdcli1]
+            <label class="toggle-radio" for="toggleupnpmpdcli1">OFF</label>
+            $_system_select[upnpmpdcli0]
+          </div>
+
+          <span class="help-block">
+            Enables <strong>upmpdcli</strong> (MPD UPnP renderer/control). Turn OFF if you don’t use UPnP apps.
+          </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <p class="muted">
+          Shows other UPnP/DLNA servers in the network and can mount them into the player as a folder
+          (usually under /mnt/UPNP). This may create extra background traffic on SSDP (UDP 1900) and
+          can be heavy on low-power devices.
+        </p>
+        <label class="control-label">UPnP/DLNA Indexing</label>
+        <div class="controls">
+          <div class="toggle">
+            <label class="toggle-radio" for="toggledjmount2">ON</label>
+            $_system_select[djmount1]
+            <label class="toggle-radio" for="toggledjmount1">OFF</label>
+            $_system_select[djmount0]
+          </div>
+
+          <span class="help-block">
+            Enables <strong>djmount</strong>. If you don’t use UPnP libraries, keep this OFF.
+          </span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <p class="muted">
+          Shares your local music folder to the network as a DLNA server. Other devices (TV, phone apps,
+          streamers) will see the player as a media library. Can increase disk activity and CPU usage
+          during scanning.
+        </p>
+        <label class="control-label">DLNA Library Server</label>
+        <div class="controls">
+          <div class="toggle">
+            <label class="toggle-radio" for="toggleminidlna2">ON</label>
+            $_system_select[minidlna1]
+            <label class="toggle-radio" for="toggleminidlna1">OFF</label>
+            $_system_select[minidlna0]
+          </div>
+
+          <span class="help-block">
+            Enables <strong>minidlna</strong>.
+          </span>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary btn-large" value="apply" name="apply" type="submit">Apply</button>
+      </div>
+    </fieldset>
+  </form>
+
+  <form class="form-horizontal" method="post">
+    <fieldset>
+      <legend>Misc</legend>
+      <p>Useful system options.</p>
+
+      <div class="control-group">
+        <label class="control-label">Startup Sound</label>
+        <div class="controls">
+          <div class="toggle">
+            <label class="toggle-radio" for="togglestartupsound2">ON</label>
+            $_system_select[startupsound1]
+            <label class="toggle-radio" for="togglestartupsound1">OFF</label>
+            $_system_select[startupsound0]
+          </div>
+
+          <span class="help-block">
+            Plays a short sound during boot. Turn OFF for silent startup.
+          </span>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary btn-large" value="apply" name="apply" type="submit">Apply</button>
+      </div>
+    </fieldset>
+  </form>
+
+  <form class="form-horizontal" method="post">
+    <fieldset>
+      <legend>Sound Quality</legend>
+      <p class="muted">
+        Kernel profiles adjust low-level system parameters. ECO mode may reduce heat and power use.
+      </p>
+
+      <div class="control-group">
+        <label class="control-label">Kernel profile</label>
+        <div class="controls">
+          <select class="input-large" name="orionprofile">
+            $_system_select[orionprofile]
+          </select>
+
+          <span class="help-block">
+            <strong>Default</strong> is balanced. <strong>ECO</strong> reduces CPU load and heat on weak hardware.
+          </span>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary btn-large" value="save" name="save" type="submit">Apply</button>
+      </div>
+    </fieldset>
+  </form>
+
+  <form class="form-horizontal" method="post">
+    <fieldset>
+      <legend>Compatibility</legend>
+      <p class="muted">Fixes for specific USB receivers and DACs.</p>
+
+      <div class="control-group">
+        <label class="control-label">CMedia fix</label>
+        <div class="controls">
+          <div class="toggle">
+            <label class="toggle-radio" for="toggleOption2">ON</label>
+            $_system_select[cmediafix1]
+            <label class="toggle-radio" for="toggleOption1">OFF</label>
+            $_system_select[cmediafix0]
+          </div>
+
+          <span class="help-block">
+            For CM6631-based devices that produce clicks/noise between tracks with different sample rates.
+            Use only if you have the issue.
+          </span>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary btn-large" value="apply" name="apply" type="submit">Apply</button>
+      </div>
+    </fieldset>
+  </form>
+</div>
