@@ -7,7 +7,7 @@ if (isset($_POST['reboot']) && $_POST['reboot'] == '1') {
   // Run reboot in background so we can redirect immediately
   // sudoers requirement (example):
   //   www-data ALL=(root) NOPASSWD: /bin/reboot
-  exec('sudo -n /bin/reboot >/dev/null 2>&1 &');
+  exec('sudo -n /sbin/reboot >/dev/null 2>&1 &');
 
   header('Location: /');
   exit;
