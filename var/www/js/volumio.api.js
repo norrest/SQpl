@@ -572,10 +572,10 @@ function updateGUI(objectInputState) {
 
 	//Change Name according to Now Playing
 	if (GUI.currentartist != null && GUI.currentsong != null) {
-		document.title = objectInputState['currentsong'] + ' - ' + objectInputState['currentartist'] + ' - ' + 'Volumio';
+		document.title = objectInputState['currentsong'] + ' ' + objectInputState['currentartist'];
 
 	} else {
-            document.title = 'V.A.M.P.';
+            document.title = 'StereoQ Player';
 
     }
 
