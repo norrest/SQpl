@@ -3,41 +3,92 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>StereoQ - Redirecting…</title>
+  <title>StereoQ</title>
 
   <link rel="stylesheet" href="/css/panels.css">
-  <meta http-equiv="refresh" content="5;url=/index.php">
 
   <style>
     body { margin:0; display:flex; align-items:center; justify-content:center; min-height:100vh; }
-    .box { max-width:520px; padding:26px; text-align:center; }
+    .box { max-width:560px; padding:28px; text-align:center; }
     h1 { margin:0 0 10px; font-size:22px; }
     p { margin:8px 0; opacity:.85; }
-    a.btn { display:inline-block; margin-top:14px; padding:10px 16px; border-radius:12px; text-decoration:none; }
+    .row { margin-top:14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    a.btn, button.btn { padding:10px 16px; border-radius:12px; text-decoration:none; cursor:pointer; }
   </style>
 </head>
 
 <body>
   <div class="box">
-    <h1>Player temporarily unavailable</h1>
-    <p>Redirecting to home…</p>
-    <p>If it does not open, wait a moment and refresh</p>
+    <h1>Player is not ready</h1>
+    <p id="st">Checking availability…</p>
 
-    <a class="btn btn-primary" href="/index.php">Open home now</a>
+    <div class="row">
+      <a class="btn btn-primary" href="/index.php">Open home</a>
+      <button class="btn" id="retry" type="button">Retry</button>
+    </div>
   </div>
 
   <script>
-    (function () {
-      var target = "/index.php";
-      var intervalMs = 1500;
+    const target = "/index.php"
+    let delay = 4000
+    let timer = null
+    let okStreak = 0
 
-      function go() {
-        if (location.pathname !== target) location.replace(target);
+    const st = document.getElementById("st")
+    const retry = document.getElementById("retry")
+
+    function sleepNext() {
+      clearTimeout(timer)
+      st.textContent = "Next check in " + Math.round(delay / 1000) + "s"
+      timer = setTimeout(check, delay)
+      delay = Math.min(Math.round(delay * 1.5), 30000)
+    }
+
+    async function headWithTimeout(url, ms) {
+      const ac = new AbortController()
+      const t = setTimeout(() => ac.abort(), ms)
+      try {
+        const r = await fetch(url, {
+          method: "GET",
+          cache: "no-store",
+          signal: ac.signal,
+          headers: { "Cache-Control": "no-cache" }
+        })
+        return r
+      } finally {
+        clearTimeout(t)
       }
+    }
 
-      go();
-      setInterval(go, intervalMs);
-    })();
+    async function check() {
+      st.textContent = "Checking /index.php…"
+      try {
+        const r = await headWithTimeout(target + "?_ping=" + Date.now(), 1200)
+        if (r && r.ok) {
+          okStreak += 1
+          if (okStreak >= 2) {
+            location.replace(target)
+            return
+          }
+          st.textContent = "Almost ready…"
+          clearTimeout(timer)
+          timer = setTimeout(check, 800)
+          return
+        }
+        okStreak = 0
+      } catch (e) {
+        okStreak = 0
+      }
+      sleepNext()
+    }
+
+    retry.addEventListener("click", () => {
+      delay = 2000
+      okStreak = 0
+      check()
+    })
+
+    setTimeout(check, 2500)
   </script>
 </body>
 </html>
