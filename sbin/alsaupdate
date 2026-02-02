@@ -21,7 +21,7 @@ if [ "$alsalibver" != "$newveralsalib" ]; then
   make
   make install
 
-  # фикс из прошлого шага
+  # 
   cp -f /usr/lib/libasound.so.2.0.0 /usr/lib/arm-linux-gnueabihf/libasound.so.2.0.0
   ln -sf libasound.so.2.0.0 /usr/lib/arm-linux-gnueabihf/libasound.so.2
   ldconfig
