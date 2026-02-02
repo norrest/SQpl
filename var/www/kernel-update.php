@@ -1,8 +1,24 @@
-<!DOCTYPE html>
+<?php
+$run = (isset($_POST['kernel_update']) && $_POST['kernel_update'] == '1');
+
+if ($run) {
+  set_time_limit(3600);
+  ignore_user_abort(true);
+
+  header('X-Accel-Buffering: no');
+  header('Cache-Control: no-cache');
+
+  while (ob_get_level()) { ob_end_flush(); }
+  ob_implicit_flush(true);
+
+  @ini_set('output_buffering','off');
+  @ini_set('zlib.output_compression',0);
+}
+?><!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
-<title>StereoQ Player Update</title>
+<title>StereoQ Kernel Update</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <style>
 :root{
@@ -132,21 +148,6 @@ button{
 button:hover{ filter:brightness(1.03); }
 button:active{ transform:translateY(1px); }
 
-button.secondary{
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.16);
-  color:rgba(255,255,255,.92);
-  box-shadow:0 10px 22px rgba(0,0,0,.22);
-  margin-left:10px;
-}
-
-button.secondary:hover{
-  background:rgba(255,255,255,.09);
-  border-color:rgba(255,255,255,.22);
-}
-
-button.secondary:active{ transform:translateY(1px); }
-
 .btn{
   background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.16);
@@ -171,7 +172,6 @@ button.secondary:active{ transform:translateY(1px); }
 @media (max-width: 520px){
   .terminal{ height:300px; font-size:12px; }
   button,.btn{ width:100%; margin:8px 0 0; }
-  button.secondary{ margin-left:0; }
   .btn{ margin-left:0; }
 }
 </style>
@@ -179,26 +179,25 @@ button.secondary:active{ transform:translateY(1px); }
 
 <body>
 
-<?php if (!isset($_POST['update']) && !isset($_POST['kernel_update'])): ?>
+<?php if (!$run): ?>
 
 <div class="wrap">
   <div class="panel">
     <div class="header">
-      <h1 class="title">StereoQ Player Update</h1>
+      <h1 class="title">StereoQ Kernel Update</h1>
       <div class="sub">
-        Internet access is required. Please keep this page open until the process finishes.
+        Internet access is required. Please keep this page open until the update finishes.
       </div>
     </div>
 
     <div class="notice">
-      Choose an action below.<br>
-      After a successful update, you may need to reboot the player.<br>
+      You are about to start updating the system kernel.<br>
+      This may take up to 20 minutes. Please wait until the update finishes.<br>
       If the update is applied, reboot the player from the side menu.
     </div>
 
     <form method="POST" class="actions">
-      <button type="submit" name="update" value="1">Update Player</button>
-      <button type="submit" name="kernel_update" value="1" class="secondary">Kernel Update</button>
+      <button type="submit" name="kernel_update" value="1">Kernel Update</button>
       <div class="hint">Do not refresh while the update is running.</div>
     </form>
   </div>
@@ -206,47 +205,24 @@ button.secondary:active{ transform:translateY(1px); }
 
 <?php else: ?>
 
-<?php
-$mode = isset($_POST['kernel_update']) ? 'kernel' : 'player';
-$pageTitle = ($mode === 'kernel') ? 'StereoQ Kernel Update' : 'StereoQ Player Update';
-$subText = ($mode === 'kernel')
-  ? 'Kernel update is running. Output will appear below.'
-  : 'Update is running. Output will appear below.';
-
-$cmd = ($mode === 'kernel')
-  ? 'sudo -n /bin/bash /sbin/kernel_update 2>&1'
-  : 'sudo -n /bin/bash /sbin/update 2>&1';
-?>
-
 <div class="wrap">
   <div class="panel">
     <div class="header">
-      <h1 class="title"><?php echo htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8'); ?></h1>
+      <h1 class="title">StereoQ Kernel Update</h1>
       <div class="sub">
-        <?php echo htmlspecialchars($subText, ENT_QUOTES, 'UTF-8'); ?>
+        Kernel update is running. Output will appear below.
       </div>
     </div>
 
     <div class="terminal"><?php
-set_time_limit(3600);
-ignore_user_abort(true);
-
-header('X-Accel-Buffering: no');
-header('Cache-Control: no-cache');
-
-while (ob_get_level()) { ob_end_flush(); }
-ob_implicit_flush(true);
-
-@ini_set('output_buffering','off');
-@ini_set('zlib.output_compression',0);
-
-echo "[+] Started: ".date('H:i:s')."\n";
-echo "[+] Mode: ".$mode."\n\n";
+echo "[+] Kernel update started: ".date('H:i:s')."\n\n";
 echo str_repeat(" ", 4096)."\n";
 flush();
 
+$cmd = 'sudo -n /bin/bash /sbin/kernel_update 2>&1';
 $h = popen($cmd, 'r');
-$code = null;
+
+$code = 1;
 
 if ($h) {
   while (!feof($h)) {
@@ -257,18 +233,12 @@ if ($h) {
     }
   }
   $code = pclose($h);
-
   echo "\n[+] Exit code: ".$code."\n";
-
   if ((int)$code === 0) {
-    echo "[+] Done\n";
-    echo "[i] If the update was applied, reboot the player from the side menu.\n";
-  } else {
-    echo "[!] Finished with errors\n";
+    echo "[i] If the update is applied, reboot the player from the side menu.\n";
   }
 } else {
-  echo "[!] Cannot start\n";
-  $code = 1;
+  echo "[!] Cannot start kernel update\n";
 }
 ?></div>
 
