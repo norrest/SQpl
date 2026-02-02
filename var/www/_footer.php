@@ -6,29 +6,160 @@
 ?>
 
 <style>
-/* Service Menu modal styling */
-#service-menu-modal .modal-body.service-menu { padding: 18px 22px; }
-#service-menu-modal .section { margin-bottom: 10px; }
-#service-menu-modal .section-title {
-  font-weight: 700;
+:root{
+  --bg0:#2b3137;
+  --bg1:#3a424c;
+  --panel:rgba(255,255,255,.06);
+  --panel2:rgba(17,24,31,.90);
+  --line:rgba(255,255,255,.12);
+  --text:rgba(255,255,255,.92);
+  --muted:rgba(255,255,255,.70);
+  --muted2:rgba(255,255,255,.52);
+  --accent:#14E681;
+  --accent2:#4BBE87;
+  --radius:16px;
+  --radius2:12px;
+  --shadow:0 14px 40px rgba(0,0,0,.45);
+}
+
+/* Apply dark style only to these modals */
+#service-menu-modal,
+#poweroff-modal,
+#webradio-modal{
+  background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  color: var(--text);
+}
+
+/* Header */
+#service-menu-modal .modal-header,
+#poweroff-modal .modal-header,
+#webradio-modal .modal-header{
+  background: rgba(24,28,33,.55);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+#service-menu-modal .modal-header h3,
+#poweroff-modal .modal-header h3,
+#webradio-modal .modal-header h3{
+  color: var(--text);
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+/* Close button */
+#service-menu-modal .close,
+#poweroff-modal .close,
+#webradio-modal .close{
+  color: rgba(255,255,255,.85);
+  opacity: .75;
+  text-shadow: none;
+}
+
+#service-menu-modal .close:hover,
+#poweroff-modal .close:hover,
+#webradio-modal .close:hover{
+  opacity: 1;
+}
+
+/* Body */
+#service-menu-modal .modal-body,
+#poweroff-modal .modal-body,
+#webradio-modal .modal-body{
+  background: rgba(17,24,31,.55);
+}
+
+#service-menu-modal .modal-body.service-menu{
+  padding: 18px 22px;
+}
+
+/* Section styling */
+#service-menu-modal .section{ margin-bottom: 10px; }
+
+#service-menu-modal .section-title{
+  font-weight: 800;
   font-size: 14px;
-  color: #2c3e50;
+  color: var(--text);
   margin: 0 0 10px;
   letter-spacing: .2px;
 }
-#service-menu-modal .btn-service { margin: 0 0 6px; text-align: center; }
-#service-menu-modal .section-hint {
+
+#service-menu-modal .section-hint{
   font-size: 12px;
-  color: #7f8c8d;
+  color: var(--muted);
   margin: 0 0 12px;
   line-height: 1.25;
 }
-#service-menu-modal .soft-hr {
+
+/* Divider */
+#service-menu-modal .soft-hr{
   margin: 12px 0 14px;
   border: 0;
-  border-top: 1px solid rgba(0,0,0,.08);
+  border-top: 1px solid rgba(255,255,255,.10);
+}
+
+/* Buttons inside service menu */
+#service-menu-modal .btn-service{
+  margin: 0 0 6px;
+  text-align: center;
+  border-radius: 14px;
+  font-weight: 800;
+}
+
+/* Green primary like previous page */
+#service-menu-modal .btn.btn-primary{
+  background: linear-gradient(180deg, rgba(20,230,129,.95), rgba(75,190,135,.92));
+  border-color: rgba(20,230,129,.45);
+  color: rgba(255,255,255,.92);
+  box-shadow: 0 10px 22px rgba(20,230,129,.16);
+}
+
+#service-menu-modal .btn.btn-primary:hover{ filter: brightness(1.03); }
+#service-menu-modal .btn.btn-primary:active{ transform: translateY(1px); }
+
+/* Default button tuned for dark UI */
+#service-menu-modal .btn.btn-default{
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.16);
+  color: rgba(255,255,255,.92);
+  box-shadow: 0 10px 22px rgba(0,0,0,.22);
+}
+
+#service-menu-modal .btn.btn-default:hover{
+  background: rgba(255,255,255,.09);
+  border-color: rgba(255,255,255,.22);
+}
+
+/* Warning button still warning but readable on dark */
+#service-menu-modal .btn.btn-warning{
+  color: rgba(255,255,255,.92);
+  box-shadow: 0 10px 22px rgba(0,0,0,.22);
+}
+
+/* Footer */
+#service-menu-modal .modal-footer,
+#poweroff-modal .modal-footer,
+#webradio-modal .modal-footer{
+  background: rgba(24,28,33,.45);
+  border-top: 1px solid rgba(255,255,255,.08);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+/* Footer cancel buttons */
+#service-menu-modal .modal-footer .btn,
+#poweroff-modal .modal-footer .btn,
+#webradio-modal .modal-footer .btn{
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.16);
+  color: rgba(255,255,255,.92);
+  border-radius: 14px;
+  font-weight: 800;
 }
 </style>
+
 
 <form class="form-horizontal" action="settings.php" method="post">
   <div id="poweroff-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="poweroff-modal-label" aria-hidden="true">
@@ -58,19 +189,32 @@
     </div>
 
     <div class="modal-body service-menu">
-      <div class="section">
-        <div class="section-title">Update</div>
+<div class="section">
+  <div class="section-title">Update Player</div>
 
-        <button id="update-git-hub"
-                name="update_ui"
-                formtarget="_blank"
-                formaction="update.php"
-                class="btn btn-primary btn-large btn-block btn-service">
-          <i class="fa fa-cloud-download sx"></i>
-          Update web interface
-        </button>
-        <div class="section-hint">Downloads and installs the latest UI version</div>
-      </div>
+  <button id="update-ui"
+          type="submit"
+          name="update_ui"
+          formtarget="_blank"
+          formaction="update.php"
+          class="btn btn-primary btn-large btn-block btn-service">
+    <i class="fa fa-cloud-download sx"></i>
+    Update web interface
+  </button>
+  <div class="section-hint">Downloads and installs the latest web-interface version</div>
+
+  <button id="kernel-update"
+          type="submit"
+          name="kernel_update"
+          formtarget="_blank"
+          formaction="kernel-update.php"
+          class="btn btn-primary btn-large btn-block btn-service">
+    <i class="fa fa-cloud-download sx"></i>
+    Update player system kernel
+  </button>
+  <div class="section-hint">Downloads and installs the latest system kernel version</div>
+</div>
+
 
       <hr class="soft-hr">
 
