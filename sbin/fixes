@@ -1,2 +1,5 @@
 #! /bin/sh
+bash /sbin/usb-dac-no-suspend
+bash /sbin/mpd-prio-tweak
+bash /sbin/usb-dac-lowlatency-off
 exit 0
