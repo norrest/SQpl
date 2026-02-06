@@ -1,0 +1,109 @@
+#!/bin/bash
+set -e
+
+# MPD installer with hardcoded target version
+# Downloads the archive only if installed MPD is older than TARGET_VER
+
+TARGET_VER="0.20.23"
+URL="https://sourceforge.net/projects/strereoq/files/mpd.tar.bz2/download"
+
+WORK="/root/mpd_install"
+ARCHIVE="$WORK/mpd.tar.bz2"
+SRCDIR="$WORK/src"
+
+need() {
+  command -v "$1" >/dev/null 2>&1 || { echo "Missing command: $1"; exit 1; }
+}
+
+get_installed_ver() {
+  # Returns "0.20.6" like string, or "0.0.0" if mpd is missing
+  if command -v mpd >/dev/null 2>&1; then
+    mpd -V 2>/dev/null | awk '/^Music Player Daemon/ {print $4; exit}' | sed 's/[^0-9.].*$//'
+  else
+    echo "0.0.0"
+  fi
+}
+
+ver_to_int() {
+  # Converts "0.20.23" to comparable integer
+  v="$1"
+  a=$(echo "$v" | cut -d. -f1); [ -z "$a" ] && a=0
+  b=$(echo "$v" | cut -d. -f2); [ -z "$b" ] && b=0
+  c=$(echo "$v" | cut -d. -f3); [ -z "$c" ] && c=0
+  echo $((a*1000000 + b*1000 + c))
+}
+
+download_file() {
+  # Downloads via curl or wget
+  u="$1"
+  out="$2"
+  if command -v curl >/dev/null 2>&1; then
+    curl -L -o "$out" "$u"
+  else
+    need wget
+    wget -O "$out" "$u"
+  fi
+}
+
+need tar
+need make
+
+CUR_STR="$(get_installed_ver)"
+CUR_INT="$(ver_to_int "$CUR_STR")"
+NEW_INT="$(ver_to_int "$TARGET_VER")"
+
+echo "Installed MPD: $CUR_STR"
+echo "Target MPD:    $TARGET_VER"
+
+if [ "$CUR_INT" -ge "$NEW_INT" ]; then
+  echo "Skip. Installed version is the same or newer"
+  exit 0
+fi
+
+rm -rf "$WORK"
+mkdir -p "$SRCDIR"
+
+echo "Downloading archive"
+download_file "$URL" "$ARCHIVE"
+
+echo "Extracting"
+tar -xjvf "$ARCHIVE" -C "$SRCDIR" >/dev/null
+
+echo "Stopping mpd"
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl stop mpd.socket 2>/dev/null || true
+  systemctl stop mpd 2>/dev/null || true
+fi
+service mpd stop 2>/dev/null || true
+/etc/init.d/mpd stop 2>/dev/null || true
+
+echo "Installing (make install)"
+cd "$SRCDIR"
+make install
+
+# Optional strip
+if [ -x /usr/local/bin/mpd ] && command -v strip >/dev/null 2>&1; then
+  strip /usr/local/bin/mpd 2>/dev/null || true
+fi
+
+# Force /usr/bin/mpd -> /usr/local/bin/mpd
+if [ -e /usr/bin/mpd ] && [ ! -L /usr/bin/mpd ]; then
+  mv /usr/bin/mpd "/usr/bin/mpd_old_$(date +%Y%m%d_%H%M%S)" || true
+fi
+ln -sf /usr/local/bin/mpd /usr/bin/mpd
+
+# Update init script DAEMON path if present
+if [ -f /etc/init.d/mpd ] && grep -q '^DAEMON=' /etc/init.d/mpd; then
+  chmod 755 /etc/init.d/mpd 2>/dev/null || true
+  sed -i 's|^DAEMON=.*|DAEMON=/usr/local/bin/mpd|' /etc/init.d/mpd || true
+fi
+
+echo "Starting mpd"
+service mpd restart 2>/dev/null || true
+/etc/init.d/mpd restart 2>/dev/null || true
+
+echo "Done, version:"
+mpd -V 2>/dev/null | head -n 1 || true
+
+rm -rf "$WORK"
+exit 0
