@@ -1,0 +1,27 @@
+#!/bin/bash
+set -e
+
+DB="/var/www/db/player.db"
+T="cfg_engine"
+
+need_sqlite() { command -v sqlite3 >/dev/null 2>&1; }
+
+ensure_param() {
+  local p="$1" def="$2"
+  local v
+  v="$(sqlite3 "$DB" "SELECT value FROM $T WHERE param='$p' LIMIT 1;")"
+  if [ -z "$v" ]; then
+    sqlite3 "$DB" "INSERT INTO $T (param,value) VALUES ('$p','$def');"
+    echo "[usbdac-db-init] added $p=$def"
+  else
+    echo "[usbdac-db-init] exists $p=$v (OK)"
+  fi
+}
+
+if ! need_sqlite; then
+  echo "[usbdac-db-init] sqlite3 not found"
+  exit 1
+fi
+
+ensure_param "usbi_fb" "0"
+ensure_param "usb_clk" "1"

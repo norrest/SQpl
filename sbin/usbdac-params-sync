@@ -1,0 +1,38 @@
+#!/bin/bash
+set -e
+
+DB="/var/www/db/player.db"
+T="cfg_engine"
+CONF="/etc/modprobe.d/99-usbdac.conf"
+MOD="snd-usb-audio"
+
+get_db01() {
+  local p="$1" def="$2" v
+  v="$(sqlite3 "$DB" "SELECT value FROM $T WHERE param='$p' LIMIT 1;")"
+  [ -z "$v" ] && v="$def"
+  case "$v" in
+    0|1) echo "$v" ;;
+    *) echo "$def" ;;
+  esac
+}
+
+usbi_fb="$(get_db01 usbi_fb 0)"
+usb_clk="$(get_db01 usb_clk 1)"
+
+tmp="$(mktemp)"
+cat > "$tmp" <<EOT
+# Managed by StereoQ Player UI
+# Source: $DB ($T)
+options $MOD implicit_fb=$usbi_fb autoclock=$usb_clk
+EOT
+
+if [ -f "$CONF" ] && cmp -s "$tmp" "$CONF"; then
+  echo "[usbdac-params] $CONF already OK (usbi_fb=$usbi_fb usb_clk=$usb_clk)"
+  rm -f "$tmp"
+  exit 0
+fi
+
+cp "$tmp" "$CONF"
+rm -f "$tmp"
+echo "[usbdac-params] wrote $CONF (usbi_fb=$usbi_fb usb_clk=$usb_clk)"
+echo "[usbdac-params] reboot required to apply driver parameters"
