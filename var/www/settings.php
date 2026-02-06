@@ -219,6 +219,46 @@ if (isset($_POST['cmediafix']) && $_POST['cmediafix'] != $_SESSION['cmediafix'])
 	playerSession('unlock');
 }
 
+if (isset($_POST['usbi_fb']) && $_POST['usbi_fb'] != $_SESSION['usbi_fb']){
+	// start / respawn session
+	if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+	// save new value on SQLite datastore
+	if ($_POST['usbi_fb'] == 1 || $_POST['usbi_fb'] == 0) {
+		playerSession('write', $db, 'usbi_fb', $_POST['usbi_fb']);
+		$_SESSION['usbi_fb'] = (int)$_POST['usbi_fb'];
+
+		if ($_SESSION['w_lock'] != 1 && $_SESSION['w_queue'] == '') {
+			$_SESSION['w_queue'] = 'usbdacparams';
+			$_SESSION['w_active'] = 1;
+		}
+	}
+	// set UI notify
+	$_SESSION['notify']['title'] = 'USB DAC';
+	$_SESSION['notify']['msg']   = 'Setting saved. Reboot required to apply.';
+	// unlock session file
+	playerSession('unlock');
+}
+
+if (isset($_POST['usb_clk']) && $_POST['usb_clk'] != $_SESSION['usb_clk']){
+	// start / respawn session
+	if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+	// save new value on SQLite datastore
+	if ($_POST['usb_clk'] == 1 || $_POST['usb_clk'] == 0) {
+		playerSession('write', $db, 'usb_clk', $_POST['usb_clk']);
+		$_SESSION['usb_clk'] = (int)$_POST['usb_clk'];
+
+		if ($_SESSION['w_lock'] != 1 && $_SESSION['w_queue'] == '') {
+			$_SESSION['w_queue'] = 'usbdacparams';
+			$_SESSION['w_active'] = 1;
+		}
+	}
+	// set UI notify
+	$_SESSION['notify']['title'] = 'USB DAC';
+	$_SESSION['notify']['msg']   = 'Setting saved. Reboot required to apply.';
+	// unlock session file
+	playerSession('unlock');
+}
+
 if (isset($_POST['shairport']) && $_POST['shairport'] != $_SESSION['shairport']){
 	// load worker queue 
 	// start / respawn session
@@ -407,6 +447,10 @@ $_system_select['spotify1'] .= "<input type=\"radio\" name=\"spotify\" id=\"togg
 $_system_select['spotify0'] .= "<input type=\"radio\" name=\"spotify\" id=\"togglespotify2\" value=\"0\" ".(($_SESSION['spotify'] == 0) ? "checked=\"checked\"" : "").">\n";
 $_system_select['spotifybitrate1'] .= "<input type=\"radio\" name=\"spotifybitrate\" id=\"togglespotifybitrate1\" value=\"1\" ".(($_SESSION['spotifybitrate'] == 1) ? "checked=\"checked\"" : "").">\n";
 $_system_select['spotifybitrate0'] .= "<input type=\"radio\" name=\"spotifybitrate\" id=\"togglespotifybitrate2\" value=\"0\" ".(($_SESSION['spotifybitrate'] == 0) ? "checked=\"checked\"" : "").">\n";
+$_system_select['usbi_fb1'] .= "<input type=\"radio\" name=\"usbi_fb\" id=\"toggleusbfbi1\" value=\"1\" ".(($_SESSION['usbi_fb'] == 1) ? "checked=\"checked\"" : "").">\n";
+$_system_select['usbi_fb0'] .= "<input type=\"radio\" name=\"usbi_fb\" id=\"toggleusbfbi2\" value=\"0\" ".(($_SESSION['usbi_fb'] == 0) ? "checked=\"checked\"" : "").">\n";
+$_system_select['usb_clk1'] .= "<input type=\"radio\" name=\"usb_clk\" id=\"toggleusbclk1\" value=\"1\" ".(($_SESSION['usb_clk'] == 1) ? "checked=\"checked\"" : "").">\n";
+$_system_select['usb_clk0'] .= "<input type=\"radio\" name=\"usb_clk\" id=\"toggleusbclk2\" value=\"0\" ".(($_SESSION['usb_clk'] == 0) ? "checked=\"checked\"" : "").">\n";
 $_hostname = $_SESSION['hostname'];
 $_spotusername = $_SESSION['spotusername'];
 $_spotpassword = $_SESSION['spotpassword'];
