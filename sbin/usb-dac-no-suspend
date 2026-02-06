@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+say() { echo "[usb-dac-no-suspend] $*"; }
+
+# 1) Runtime USB autosuspend
+if [[ -r /sys/module/usbcore/parameters/autosuspend ]]; then
+  cur="$(cat /sys/module/usbcore/parameters/autosuspend 2>/dev/null || echo "unknown")"
+  if [[ "$cur" == "-1" ]]; then
+    say "usbcore autosuspend (runtime): already -1 (OK)"
+  else
+    if [[ -w /sys/module/usbcore/parameters/autosuspend ]]; then
+      echo -1 > /sys/module/usbcore/parameters/autosuspend 2>/dev/null || true
+      new="$(cat /sys/module/usbcore/parameters/autosuspend 2>/dev/null || echo "unknown")"
+      say "usbcore autosuspend (runtime): was $cur, set to $new"
+    else
+      say "usbcore autosuspend (runtime): is $cur (cannot write)"
+    fi
+  fi
+else
+  say "usbcore autosuspend (runtime): not available"
+fi
+
+# 2) Persistent kernel cmdline via U-Boot boot.cmd -> boot.scr
+BOOTCMD=/boot/boot.cmd
+BOOTSCR=/boot/boot.scr
+
+if [[ -f "$BOOTCMD" ]]; then
+  if grep -q 'usbcore\.autosuspend=-1' "$BOOTCMD" 2>/dev/null; then
+    say "boot.cmd: usbcore.autosuspend=-1 already present (OK)"
+  else
+    say "boot.cmd: adding usbcore.autosuspend=-1"
+    sed -i '/^setenv bootargs / s/[[:space:]]usbcore\.autosuspend=[^ "]*//g' "$BOOTCMD"
+    sed -i '/^setenv bootargs / s/"$/ usbcore.autosuspend=-1"/' "$BOOTCMD"
+
+    if command -v mkimage >/dev/null 2>&1; then
+      mkimage -C none -A arm -T script -d "$BOOTCMD" "$BOOTSCR" >/dev/null || true
+      sync || true
+      say "boot.scr: rebuilt (reboot applies cmdline)"
+    else
+      say "boot.scr: mkimage not found (cannot rebuild)"
+    fi
+  fi
+else
+  say "boot.cmd: not found (skipping persistent cmdline)"
+fi
+
+# 3) Udev rule to keep USB Audio devices powered
+RULE=/etc/udev/rules.d/90-usb-audio-no-pm.rules
+mkdir -p /etc/udev/rules.d
+
+if [[ -f "$RULE" ]] && grep -q 'bInterfaceClass' "$RULE" 2>/dev/null; then
+  say "udev rule: already present (OK)"
+else
+  cat > "$RULE" <<'RULEEOF'
+ACTION=="add", SUBSYSTEM=="usb", DEVTYPE=="usb_interface", ATTR{bInterfaceClass}=="01", TEST=="../power/control", ATTR{../power/control}="on"
+RULEEOF
+  say "udev rule: installed ($RULE)"
+fi
+
+if command -v udevadm >/dev/null 2>&1; then
+  udevadm control --reload-rules >/dev/null 2>&1 || true
+  udevadm trigger >/dev/null 2>&1 || true
+  say "udev: rules reloaded/triggered"
+else
+  say "udev: udevadm not found (skipping reload)"
+fi
+
+# 4) Apply power/control=on to currently present USB Audio devices
+count=0
+shopt -s nullglob
+for f in /sys/bus/usb/devices/*/bInterfaceClass; do
+  [[ -f "$f" ]] || continue
+  cls="$(cat "$f" 2>/dev/null || true)"
+  [[ "$cls" == "01" ]] || continue
+  devdir="${f%/*}"
+  if [[ -w "$devdir/../power/control" ]]; then
+    echo on > "$devdir/../power/control" 2>/dev/null || true
+    ((count++))
+  fi
+done
+say "usb audio devices forced to power/control=on: $count interface(s)"
+
+exit 0

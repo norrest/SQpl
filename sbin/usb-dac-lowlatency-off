@@ -1,0 +1,26 @@
+#!/bin/bash
+set -e
+
+say() {
+  echo "[usb-dac-lowlatency-off] $*"
+}
+
+MODCONF=/etc/modprobe.d/snd_usb_audio.conf
+WANT_LINE='options snd_usb_audio lowlatency=0'
+
+if [ -r /sys/module/snd_usb_audio/parameters/lowlatency ]; then
+  CUR="$(cat /sys/module/snd_usb_audio/parameters/lowlatency 2>/dev/null || echo unknown)"
+  say "snd_usb_audio lowlatency (runtime): $CUR"
+else
+  say "snd_usb_audio lowlatency (runtime): not available"
+fi
+
+if [ -f "$MODCONF" ] && grep -qxF "$WANT_LINE" "$MODCONF" 2>/dev/null; then
+  say "modprobe config: already set (OK) -> $MODCONF"
+else
+  printf "%s\n" "$WANT_LINE" > "$MODCONF"
+  say "modprobe config: written (OK) -> $MODCONF"
+fi
+
+say "note: takes effect after reboot or after reloading snd_usb_audio module"
+exit 0

@@ -1,0 +1,36 @@
+#!/bin/bash
+set -e
+
+say() { echo "[mpd-prio-tweak] $*"; }
+
+DIR=/etc/systemd/system/mpd.service.d
+FILE=$DIR/override.conf
+
+WANT_NICE='Nice=-10'
+WANT_IOCLASS='IOSchedulingClass=best-effort'
+WANT_IOPRIO='IOSchedulingPriority=2'
+
+if [ -f "$FILE" ]; then
+  if grep -qx "$WANT_NICE" "$FILE" 2>/dev/null \
+  && grep -qx "$WANT_IOCLASS" "$FILE" 2>/dev/null \
+  && grep -qx "$WANT_IOPRIO" "$FILE" 2>/dev/null; then
+    say "override.conf already OK: $FILE"
+    exit 0
+  fi
+  say "override.conf exists but not OK, rewriting: $FILE"
+else
+  say "override.conf not found, creating: $FILE"
+fi
+
+[ -d "$DIR" ] || mkdir -p "$DIR"
+
+cat > "$FILE" <<'CONF'
+[Service]
+Nice=-10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=2
+CONF
+
+say "written: $FILE"
+say "apply later with daemon-reload + restart or reboot"
+exit 0
