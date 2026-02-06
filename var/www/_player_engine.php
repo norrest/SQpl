@@ -57,21 +57,39 @@ if ($title !== '') {
   $status['currentalbum']  = $path !== '' ? (' ' . $path) : '';
 }
 
-// CMediaFix
-if ($cmediafixEnabled && isset($status['state']) && $status['state'] === 'play') {
-  $status['lastbitdepth'] = $lastBitdepth;
 
-  if ($lastBitdepth !== null && isset($status['audio']) && $lastBitdepth !== $status['audio']) {
-    sendMpdCommand($mpd, 'cmediafix');
-
-    // 
-    if (session_status() !== PHP_SESSION_ACTIVE) {
-      session_start();
-    }
-    $_SESSION['lastbitdepth'] = $status['audio'];
-    session_write_close();
-  }
+// CMediaFix (track change only)
+if (session_status() !== PHP_SESSION_ACTIVE) {
+  session_start();
 }
+
+if ($cmediafixEnabled && isset($status['state']) && $status['state'] === 'play') {
+
+  $cur = null;
+  if (isset($status['songid']) && $status['songid'] !== '') {
+    $cur = $status['songid'];
+  } else if (isset($status['song']) && $status['song'] !== '') {
+    $cur = $status['song'];
+  } else if (isset($status['file']) && $status['file'] !== '') {
+    $cur = $status['file'];
+  }
+
+  if ($cur !== null) {
+    $last = isset($_SESSION['last_track_id']) ? $_SESSION['last_track_id'] : null;
+
+    if ($last !== null && $last !== $cur) {
+      sendMpdCommand($mpd, 'cmediafix');
+    }
+
+    $_SESSION['last_track_id'] = $cur;
+  }
+
+} else {
+  if (isset($_SESSION['last_track_id'])) unset($_SESSION['last_track_id']);
+}
+
+session_write_close();
+
 
 header('Content-Type: application/json');
 echo json_encode($status);
