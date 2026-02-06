@@ -5,5 +5,6 @@ bash /sbin/usb-dac-lowlatency-off
 bash /sbin/shairport-sync-install
 bash /sbin/usbdac-params-sync
 bash /sbin/usbdac-db-init
+bash /sbin/mpd_update
 chmod 777 /etc/modprobe.d/*.conf
 exit 0
