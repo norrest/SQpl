@@ -192,6 +192,11 @@ $cmd = "/var/www/command/orion_optimize.sh ".$_SESSION['orionprofile']." startup
 sysCmd($cmd);
 }
 
+// usb tweak
+if ($w_queue == 'usbdacparams') {
+  sysCmd('/sbin/usbdac-params-sync');
+}
+
 //Additional Fix for WLAN power management
 $cmd = "iwconfig wlan0 power off" ;
 sysCmd($cmd);
@@ -330,6 +335,10 @@ session_start();
 		case 'reboot':
 		$cmd = 'mpc stop && reboot';
 		sysCmd($cmd);
+		break;
+		
+		case 'usbdacparams':
+		sysCmd('/sbin/usbdac-params-sync');
 		break;
 		
 		case 'poweroff':
