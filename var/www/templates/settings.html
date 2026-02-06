@@ -182,18 +182,19 @@
       <p class="muted">Fixes for specific USB receivers and DACs.</p>
 
       <div class="control-group">
-        <label class="control-label">CMedia fix</label>
+        <label class="control-label">USB DAC Resync</label>
         <div class="controls">
           <div class="toggle">
-            <label class="toggle-radio" for="toggleOption2">ON</label>
+            <label class="toggle-radio" for="togglecmedia2">ON</label>
             $_system_select[cmediafix1]
-            <label class="toggle-radio" for="toggleOption1">OFF</label>
+            <label class="toggle-radio" for="togglecmedia1">OFF</label>
             $_system_select[cmediafix0]
           </div>
 
           <span class="help-block">
-            For CM6631-based devices that produce clicks/noise between tracks with different sample rates.
-            Use only if you have the issue.
+            Workaround for some USB DACs/receivers that click or pop between tracks or when sample rate changes.
+			Internally it sends a quick pause → pause toggle to resync playback.
+			Use only if you actually hear clicks. May slightly affect gapless playback.
           </span>
         </div>
       </div>
