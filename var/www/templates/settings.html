@@ -176,32 +176,74 @@
     </fieldset>
   </form>
 
-  <form class="form-horizontal" method="post">
-    <fieldset>
-      <legend>Compatibility</legend>
-      <p class="muted">Fixes for specific USB receivers and DACs.</p>
+<form class="form-horizontal" method="post">
+  <fieldset>
+    <legend>Compatibility</legend>
+    <p class="muted">Fixes for specific USB receivers and DACs.</p>
 
-      <div class="control-group">
-        <label class="control-label">USB DAC Resync</label>
-        <div class="controls">
-          <div class="toggle">
-            <label class="toggle-radio" for="togglecmedia2">ON</label>
-            $_system_select[cmediafix1]
-            <label class="toggle-radio" for="togglecmedia1">OFF</label>
-            $_system_select[cmediafix0]
-          </div>
-
-          <span class="help-block">
-            Workaround for some USB DACs/receivers that click or pop between tracks or when sample rate changes.
-			Internally it sends a quick pause → pause toggle to resync playback.
-			Use only if you actually hear clicks. May slightly affect gapless playback.
-          </span>
+    <div class="control-group">
+      <label class="control-label">USB DAC Resync</label>
+      <div class="controls">
+        <div class="toggle">
+          <label class="toggle-radio" for="togglecmedia2">ON</label>
+          $_system_select[cmediafix1]
+          <label class="toggle-radio" for="togglecmedia1">OFF</label>
+          $_system_select[cmediafix0]
         </div>
-      </div>
 
-      <div class="form-actions">
-        <button class="btn btn-primary btn-large" value="apply" name="apply" type="submit">Apply</button>
+        <span class="help-block">
+          Default: OFF. If you hear clicks or pops between tracks or when sample rate changes, this can help.
+          Internally it sends a quick pause → pause to re-sync playback. May slightly affect gapless playback.
+        </span>
       </div>
-    </fieldset>
-  </form>
+    </div>
+
+    <div class="control-group">
+      <p class="muted">
+        Generic implicit feedback mode for some async USB DACs. Enable only if you have clicks or sync drift.
+      </p>
+      <label class="control-label">USB implicit feedback</label>
+      <div class="controls">
+        <div class="toggle">
+          <label class="toggle-radio" for="toggleusbfbi2">ON</label>
+          $_system_select[usbi_fb1]
+          <label class="toggle-radio" for="toggleusbfbi1">OFF</label>
+          $_system_select[usbi_fb0]
+        </div>
+
+        <span class="help-block">
+          Compatibility option for some asynchronous USB DACs that click, pop, or glitch on track changes, seeks, or sample-rate switches. 
+		  It changes how the USB audio driver keeps the stream in sync, which can improve stability on certain DACs or USB controllers. 
+		  Keep it OFF if everything is already stable. Default: OFF. Reboot required.
+        </span>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <p class="muted">
+        Auto clock selection for UAC2 devices. Usually keep ON.
+      </p>
+      <label class="control-label">USB auto clock</label>
+      <div class="controls">
+        <div class="toggle">
+          <label class="toggle-radio" for="toggleusbclk2">ON</label>
+          $_system_select[usb_clk1]
+          <label class="toggle-radio" for="toggleusbclk1">OFF</label>
+          $_system_select[usb_clk0]
+        </div>
+
+        <span class="help-block">
+          Lets the USB audio driver automatically pick the best clock/sync mode for UAC2 devices. 
+		  Usually this improves compatibility and reduces issues when switching sample rates, so it should normally stay ON. 
+		  Turn it OFF only if a specific DAC works worse with it enabled. Default: ON. Reboot required.
+        </span>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary btn-large" value="apply" name="apply" type="submit">Apply</button>
+    </div>
+  </fieldset>
+</form>
+
 </div>
