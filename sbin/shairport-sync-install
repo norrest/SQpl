@@ -1,0 +1,30 @@
+#!/bin/bash
+set -eu
+
+REQUIRED="libconfig9 libdaemon0 avahi-daemon"
+
+is_installed() {
+  dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "install ok installed"
+}
+
+if [ "$(id -u)" -ne 0 ]; then
+  echo "Run as root"
+  exit 1
+fi
+
+missing=""
+for p in $REQUIRED; do
+  if ! is_installed "$p"; then
+    missing="$missing $p"
+  fi
+done
+
+if [ -z "$missing" ]; then
+  echo "OK: already installed: $REQUIRED"
+  exit 0
+fi
+
+echo "Missing:$missing"
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $missing
+echo "Done"
