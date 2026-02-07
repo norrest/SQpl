@@ -33,12 +33,7 @@ rm -rf /update/tmpi /sbin/fixes
 mkdir -p /var/lib/mpd/playlists /var/lib/mpd/music/WEBRADIO
 chmod -R 777 /var/lib/mpd
 
-support_web() {
-  if [ ! -t 1 ]; then
-    echo '<span style="color:#ff4d4d;font-weight:900;">[+] Support: https://norrest.github.io/StereoQ/</span>'
-    echo '<span style="color:#ff4d4d;font-weight:900;">[!] If you see messages above saying &quot;Please wait&quot;, do not reboot or power off the player.</span>'
-  else
-    echo "[+] Support: https://norrest.github.io/StereoQ/"
-    echo "[!] If you see messages above saying \"Please wait\", do not reboot or power off the player."
-  fi
-}
+echo '<span style="color:#ff4d4d;font-weight:900;">[+] Support: https://norrest.github.io/StereoQ/</span>'
+echo '<span style="color:#ff4d4d;font-weight:900;">[!] If you see a message above saying &quot;Please wait&quot;, do not reboot or power off the player.</span>'
+
+
