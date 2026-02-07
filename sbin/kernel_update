@@ -12,11 +12,11 @@ echo "current: $cur"
 echo "need   : $need"
 echo "workdir: $(pwd)"
 
-# удаляем все deb в текущей папке
+# del all debs
 rm -f ./*.deb 2>/dev/null || true
 
 if [ "$cur" != "$need" ]; then
-  echo "need to update"
+  echo "need to update kernel"
 
   for f in "$f1" "$f2"; do
     url="$base/$f/download"
@@ -30,7 +30,7 @@ if [ "$cur" != "$need" ]; then
   dpkg -i "./$f1" "./$f2" || apt-get -f install -y
 
 else
-  echo "no need to update"
+  echo "no need to update kernel"
 fi
 
 echo "finished"
