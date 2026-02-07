@@ -1,37 +1,28 @@
 #!/bin/sh
 set -eu
 
-cur="$(uname -r | sed -e 's/[^0-9]//g')"
-need="6675"
-
 f1="linux-dtb-legacy-sunxi_26.02.0-trunk_armhf__6.6.75.deb"
 f2="linux-image-legacy-sunxi_26.02.0-trunk_armhf__6.6.75.deb"
+
 base="https://sourceforge.net/projects/strereoq/files"
 
-echo "current: $cur"
-echo "need   : $need"
 echo "workdir: $(pwd)"
-
-# del all debs
 rm -f ./*.deb 2>/dev/null || true
 
-if [ "$cur" != "$need" ]; then
-  echo "need to update kernel"
+dl() {
+  f="$1"
+  url="$base/$f/download?use_mirror=master"
+  tmp="$(mktemp)"
+  echo "downloading $f"
+  wget --no-check-certificate -O "./$f" "$url" 2>"$tmp" || { cat "$tmp" >&2; rm -f "$tmp"; exit 1; }
+  rm -f "$tmp"
+}
 
-  for f in "$f1" "$f2"; do
-    url="$base/$f/download"
-    echo "downloading $f"
-    wget --no-check-certificate -O "./$f" "$url"
-  done
+dl "$f1"
+dl "$f2"
 
-  ls -lh "./$f1" "./$f2"
-
-  echo "installing"
-  dpkg -i "./$f1" "./$f2" || apt-get -f install -y
-
-else
-  echo "no need to update kernel"
-fi
+ls -lh "./$f1" "./$f2"
+echo "installing"
+dpkg -i "./$f1" "./$f2" || apt-get -f install -y
 
 echo "finished"
-exit 0
