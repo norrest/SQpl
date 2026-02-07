@@ -7,7 +7,7 @@ echo "${RED}[+] Stop MPD${RESET}"
 mpc stop 2>/dev/null || true
 systemctl stop mpd.socket mpd 2>/dev/null || true
 
-echo "${RED}[+] Clone StereoQ player updates${RESET}"
+printf "%s%s[+] Clone StereoQ player updates%s\n" "$BLUE" "$BOLD" "$RESET"
 rm -rf /update/tmpi
 git clone --depth 1 https://github.com/norrest/SQpl.git /update/tmpi/
 chmod -R 777 /update/tmpi
