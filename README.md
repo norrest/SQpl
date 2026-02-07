@@ -1,5 +1,7 @@
 # SQpl
 StereoQ Player is a lightweight music player project (work in progress). It is based on free, open-source software and uses an older but well-proven Volumio web interface. Some UI and system tweaks were inspired by tsunamp.com.
+StereoQ Player is free to use and distributed free of charge.
+It is built on open-source components. Please see the LICENSE file and third-party licenses for details.
 
 Audio engine:
 - Patched RT MPD (older, stable version that runs reliably) with some modules disabled for better performance and simplicity
