@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e  # Exit on any error
-if command -v tput >/dev/null 2>&1 && [ -t 1 ]; then
+if command -v tput >/dev/null 2>&1; then
   RED="$(tput setaf 1)"
   GREEN="$(tput setaf 2)"
   YELLOW="$(tput setaf 3)"
@@ -22,7 +22,7 @@ rm -rf /update/tmpi
 git clone --depth 1 https://github.com/norrest/SQpl.git /update/tmpi/
 chmod -R 777 /update/tmpi
 
-echo "${RED}[+] Install files${RESET}"
+printf "%s%s[+] Install files%s\n" "$GREEN" "$BOLD" "$RESET"
 rm -rf /etc/apt/sources.list.d/* 2>/dev/null || true
 cp -Rf /update/tmpi/etc/* /etc/
 cp -Rf /update/tmpi/var/* /var/
