@@ -64,6 +64,16 @@ run_with_heartbeat() {
   echo "OK: $title"
 }
 
+warn_web() {
+  if [ ! -t 1 ]; then
+    echo "<span style=\"color:#ff4d4d;font-weight:900;\">[!] DO NOT reboot or power off the player during installation</span>"
+    echo "<span style=\"color:#ff4d4d;font-weight:900;\">[i] Please wait. This can take up to 10 minutes on slow devices</span>"
+  else
+    echo "[!] DO NOT reboot or power off the player during installation"
+    echo "[i] Please wait. This can take up to 10 minutes on slow devices"
+  fi
+}
+
 need tar
 need make
 need awk
@@ -85,13 +95,15 @@ if [ "$CUR_INT" -ge "$NEW_INT" ]; then
 fi
 
 echo "[+] Installing MPD"
-echo "[i] Please wait. This can take up to 10 minutes on slow devices"
+warn_web
 
+# Optional background mode for web
 if [ ! -t 1 ] && [ -z "${MPD_BG:-}" ]; then
   export MPD_BG=1
   nohup "$0" "$@" >>"$LOG" 2>&1 &
-  echo "[+] Update is running"
-  echo "[+] Output will appear below"
+  echo "[+] Installation started"
+  echo "[i] Do not reboot the player"
+  echo "[i] You can check status later"
   exit 0
 fi
 
