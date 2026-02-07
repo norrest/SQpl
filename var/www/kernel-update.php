@@ -221,17 +221,47 @@ flush();
 
 $cmd = 'sudo -n /bin/bash /sbin/kernel_update 2>&1';
 $h = popen($cmd, 'r');
-
 $code = 1;
 
 if ($h) {
-  while (!feof($h)) {
-    $line = fgets($h);
-    if ($line !== false) {
+  stream_set_blocking($h, false);
+
+  $lastBeat = time();
+
+  while (true) {
+    $read = array($h);
+    $write = null;
+    $except = null;
+
+    $n = stream_select($read, $write, $except, 1);
+
+    if ($n === false) {
+      break;
+    }
+
+    if ($n === 0) {
+      if (time() - $lastBeat >= 2) {
+        echo ".";
+        flush();
+        $lastBeat = time();
+      }
+      if (feof($h)) {
+        break;
+      }
+      continue;
+    }
+
+    while (($line = fgets($h)) !== false) {
       echo $line;
       flush();
+      $lastBeat = time();
+    }
+
+    if (feof($h)) {
+      break;
     }
   }
+
   $code = pclose($h);
   echo "\n[+] Exit code: ".$code."\n";
   if ((int)$code === 0) {
@@ -240,6 +270,7 @@ if ($h) {
 } else {
   echo "[!] Cannot start kernel update\n";
 }
+
 ?></div>
 
     <div class="actions">
