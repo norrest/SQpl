@@ -34,7 +34,7 @@ mkdir -p /var/lib/mpd/playlists /var/lib/mpd/music/WEBRADIO
 chmod -R 777 /var/lib/mpd
 
 echo '<span style="color:#4da3ff;font-weight:900;">[+] Support: https://norrest.github.io/StereoQ/</span>'
-echo '<span style="color:#4da3ff;font-weight:900;">[!] If you see a message above saying &quot;Please wait&quot;, do not reboot or power off the player right now. Please wait until the update is finished.</span>'
+echo '<span style="color:#4da3ff;font-weight:900;">[!] Only if you saw the red warning above: the installation is running in the background. Do not do anything right now. Reboot the player in 5 minutes.</span>'
 
 
 
