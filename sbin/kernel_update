@@ -8,6 +8,8 @@ base="https://sourceforge.net/projects/strereoq/files"
 
 echo "workdir: $(pwd)"
 rm -f ./*.deb 2>/dev/null || true
+echo "current kernel : $(uname -r)"
+echo "target kernel  : 6.6.75"
 
 dl() {
   f="$1"
