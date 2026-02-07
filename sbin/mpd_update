@@ -7,11 +7,10 @@ URL="https://sourceforge.net/projects/strereoq/files/mpd.tar.bz2/download"
 WORK="/root/mpd_install"
 ARCHIVE="$WORK/mpd.tar.bz2"
 SRCDIR="$WORK/src"
-STEPLOG="/tmp/mpd_install_step.log"
+LOG="/tmp/mpd-install.log"
+STEPLOG="/tmp/mpd-install.step.log"
 
-need() {
-  command -v "$1" >/dev/null 2>&1 || { echo "Missing command: $1"; exit 1; }
-}
+need() { command -v "$1" >/dev/null 2>&1 || { echo "Missing command: $1"; exit 1; }; }
 
 get_installed_ver() {
   if command -v mpd >/dev/null 2>&1; then
@@ -43,7 +42,6 @@ download_file() {
 run_with_heartbeat() {
   title="$1"
   shift
-
   echo "$title"
   : >"$STEPLOG"
 
@@ -65,6 +63,16 @@ run_with_heartbeat() {
 
   echo "OK: $title"
 }
+
+# Авто фон для веба
+# Если stdout не tty, то веб почти всегда буферит и рвёт соединение
+if [ ! -t 1 ] && [ -z "${MPD_BG:-}" ]; then
+  export MPD_BG=1
+  nohup "$0" "$@" >>"$LOG" 2>&1 &
+  echo "Started in background"
+  echo "Log: $LOG"
+  exit 0
+fi
 
 need tar
 need make
@@ -90,13 +98,7 @@ rm -rf "$WORK"
 mkdir -p "$SRCDIR"
 
 run_with_heartbeat "Downloading archive" download_file "$URL" "$ARCHIVE"
-
-# Быстрая проверка что это реально bzip2
-if ! tar -tjf "$ARCHIVE" >/dev/null 2>&1; then
-  echo "Archive test failed, not a valid .tar.bz2"
-  exit 1
-fi
-echo "OK: Archive looks valid"
+run_with_heartbeat "Testing archive" tar -tjf "$ARCHIVE" >/dev/null
 
 run_with_heartbeat "Extracting" tar -xjf "$ARCHIVE" -C "$SRCDIR"
 
@@ -110,27 +112,24 @@ echo "Build dir: $BUILD_DIR"
 
 run_with_heartbeat "Installing (make install)" bash -c "cd '$BUILD_DIR' && make install"
 
-# Optional strip
 if [ -x /usr/local/bin/mpd ] && command -v strip >/dev/null 2>&1; then
   strip /usr/local/bin/mpd 2>/dev/null || true
 fi
 
-# Force /usr/bin/mpd -> /usr/local/bin/mpd (на будущее, без рестарта)
 if [ -e /usr/bin/mpd ] && [ ! -L /usr/bin/mpd ]; then
   mv /usr/bin/mpd "/usr/bin/mpd_old_$(date +%Y%m%d_%H%M%S)" || true
 fi
 ln -sf /usr/local/bin/mpd /usr/bin/mpd
 
-# Update init script DAEMON path if present (на будущее)
 if [ -f /etc/init.d/mpd ] && grep -q '^DAEMON=' /etc/init.d/mpd; then
   chmod 755 /etc/init.d/mpd 2>/dev/null || true
   sed -i 's|^DAEMON=.*|DAEMON=/usr/local/bin/mpd|' /etc/init.d/mpd || true
 fi
 
-echo "Done. New binary version (file on disk):"
-mpd -V 2>/dev/null | head -n 1 || true
+echo "Done. New binary version on disk:"
+/usr/local/bin/mpd -V 2>/dev/null | head -n 1 || true
 
-echo "MPD service was NOT stopped or restarted"
-echo "To apply new version you must restart mpd later"
+echo "MPD was NOT stopped or restarted"
+echo "To apply new version restart mpd later"
 rm -rf "$WORK"
 exit 0
