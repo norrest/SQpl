@@ -33,12 +33,9 @@ Latest build for Banana Pi M1 :
 
 --------------------
 
-Global Info:
-
 Audio engine:
-- Patched RT MPD (older, stable version that runs reliably) with some modules disabled for better performance and simplicity
-- Additional system tweaks, updated Linux kernel, and updated ALSA libraries
-
+Patched RT MPD (older, stable version that runs reliably) with some modules disabled for better performance and simplicity
+Additional system tweaks, updated Linux kernel, and updated ALSA libraries
 
 Project website:
 https://norrest.github.io/StereoQ/
