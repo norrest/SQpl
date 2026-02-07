@@ -5,7 +5,7 @@ set -e
 # Downloads the archive only if installed MPD is older than TARGET_VER
 
 TARGET_VER="0.20.23"
-URL="https://sourceforge.net/projects/stereoq/files/mpd.tar.bz2/download"
+URL="https://sourceforge.net/projects/strereoq/files/mpd.tar.bz2/download"
 
 WORK="/root/mpd_install"
 ARCHIVE="$WORK/mpd.tar.bz2"
