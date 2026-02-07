@@ -10,7 +10,9 @@ SRCDIR="$WORK/src"
 LOG="/tmp/mpd-install.log"
 STEPLOG="/tmp/mpd-install.step.log"
 
-need() { command -v "$1" >/dev/null 2>&1 || { echo "Missing command: $1"; exit 1; }; }
+need() {
+  command -v "$1" >/dev/null 2>&1 || { echo "Missing command: $1"; exit 1; }
+}
 
 get_installed_ver() {
   if command -v mpd >/dev/null 2>&1; then
@@ -45,9 +47,7 @@ run_with_heartbeat() {
   echo "$title"
   : >"$STEPLOG"
 
-  (
-    "$@"
-  ) >>"$STEPLOG" 2>&1 &
+  ( "$@" ) >>"$STEPLOG" 2>&1 &
   pid=$!
 
   while kill -0 "$pid" 2>/dev/null; do
@@ -63,16 +63,6 @@ run_with_heartbeat() {
 
   echo "OK: $title"
 }
-
-# Авто фон для веба
-# Если stdout не tty, то веб почти всегда буферит и рвёт соединение
-if [ ! -t 1 ] && [ -z "${MPD_BG:-}" ]; then
-  export MPD_BG=1
-  nohup "$0" "$@" >>"$LOG" 2>&1 &
-  echo "Started in background"
-  echo "Log: $LOG"
-  exit 0
-fi
 
 need tar
 need make
@@ -90,7 +80,18 @@ echo "Installed MPD: $CUR_STR"
 echo "Target MPD:    $TARGET_VER"
 
 if [ "$CUR_INT" -ge "$NEW_INT" ]; then
-  echo "Skip. Installed version is the same or newer"
+  echo "MPD is up to date. Nothing to do"
+  exit 0
+fi
+
+echo "[+] Installing MPD"
+echo "[i] Please wait. This can take up to 10 minutes on slow devices"
+
+if [ ! -t 1 ] && [ -z "${MPD_BG:-}" ]; then
+  export MPD_BG=1
+  nohup "$0" "$@" >>"$LOG" 2>&1 &
+  echo "[+] Update is running"
+  echo "[+] Output will appear below"
   exit 0
 fi
 
@@ -99,7 +100,6 @@ mkdir -p "$SRCDIR"
 
 run_with_heartbeat "Downloading archive" download_file "$URL" "$ARCHIVE"
 run_with_heartbeat "Testing archive" tar -tjf "$ARCHIVE" >/dev/null
-
 run_with_heartbeat "Extracting" tar -xjf "$ARCHIVE" -C "$SRCDIR"
 
 BUILD_DIR="$(find "$SRCDIR" -maxdepth 4 -type f -name Makefile -print -quit | xargs -r dirname)"
@@ -126,10 +126,7 @@ if [ -f /etc/init.d/mpd ] && grep -q '^DAEMON=' /etc/init.d/mpd; then
   sed -i 's|^DAEMON=.*|DAEMON=/usr/local/bin/mpd|' /etc/init.d/mpd || true
 fi
 
-echo "Done. New binary version on disk:"
-/usr/local/bin/mpd -V 2>/dev/null | head -n 1 || true
-
-echo "MPD was NOT stopped or restarted"
-echo "To apply new version restart mpd later"
+echo "[+] Done"
+echo "[i] MPD service was not restarted. Restart MPD later to apply the new version"
 rm -rf "$WORK"
 exit 0
