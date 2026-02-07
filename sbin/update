@@ -1,58 +1,36 @@
 #!/bin/sh
 set -e  # Exit on any error
+RED=$(tput setaf 1 2>/dev/null || echo "")
+RESET=$(tput sgr 0 2>/dev/null || echo "")
 
-# Colors (safe in web + ssh)
-if [ -z "${TERM:-}" ] || [ "${TERM:-}" = "unknown" ]; then
-  export TERM=xterm
-fi
-
-if command -v tput >/dev/null 2>&1 && tput sgr0 >/dev/null 2>&1; then
-  RED="$(tput setaf 1 2>/dev/null || true)"
-  GREEN="$(tput setaf 2 2>/dev/null || true)"
-  YELLOW="$(tput setaf 3 2>/dev/null || true)"
-  BLUE="$(tput setaf 4 2>/dev/null || true)"
-  CYAN="$(tput setaf 6 2>/dev/null || true)"
-  BOLD="$(tput bold 2>/dev/null || true)"
-  RESET="$(tput sgr0 2>/dev/null || true)"
-else
-  RED=""; GREEN=""; YELLOW=""; BLUE=""; CYAN=""; BOLD=""; RESET=""
-fi
-
-printf "%s%s[+] Stop MPD%s\n" "$RED" "$BOLD" "$RESET"
+echo "${RED}[+] Stop MPD${RESET}"
 mpc stop 2>/dev/null || true
 systemctl stop mpd.socket mpd 2>/dev/null || true
 
-printf "%s%s[+] Clone StereoQ player updates%s\n" "$BLUE" "$BOLD" "$RESET"
+echo "${RED}[+] Clone StereoQ player updates${RESET}"
 rm -rf /update/tmpi
 git clone --depth 1 https://github.com/norrest/SQpl.git /update/tmpi/
 chmod -R 777 /update/tmpi
 
-printf "%s%s[+] Install files%s\n" "$GREEN" "$BOLD" "$RESET"
+echo "${RED}[+] Install files${RESET}"
 rm -rf /etc/apt/sources.list.d/* 2>/dev/null || true
 cp -Rf /update/tmpi/etc/* /etc/
 cp -Rf /update/tmpi/var/* /var/
 cp -Rf /update/tmpi/sbin/* /sbin/
 cp -Rf /update/tmpi/bin/* /bin/
 cp -Rf /update/tmpi/usr/* /usr/
-cp -f /update/tmpi/50x.html /usr/share/nginx/html/ 2>/dev/null || true
-cp -f /update/tmpi/50x.html /etc/nginx/html/ 2>/dev/null || true
+cp -f /update/tmpi/50x.html /usr/share/nginx/html/
+cp -f /update/tmpi/50x.html /etc/nginx/html/
 
 systemctl daemon-reload
 
-if [ ! -f /sbin/fixes ]; then
-  printf "%s%s[!] /sbin/fixes not found%s\n" "$RED" "$BOLD" "$RESET"
-  exit 1
-fi
-
+[ -f /sbin/fixes ] || { echo "${RED}[!] /sbin/fixes not found${RESET}"; exit 1; }
 chmod +x /sbin/fixes 2>/dev/null || true
 bash /sbin/fixes
 
-printf "%s%s[+] Cleanup%s\n" "$YELLOW" "$BOLD" "$RESET"
+echo "${RED}[+] Cleanup {RESET}"
 rm -rf /update/tmpi /sbin/fixes
 mkdir -p /var/lib/mpd/playlists /var/lib/mpd/music/WEBRADIO
 chmod -R 777 /var/lib/mpd
 
-printf "%s%s[+] Support:%s %shttps://norrest.github.io/StereoQ/%s\n" \
-  "$BLUE" "$BOLD" "$RESET" "$CYAN" "$RESET"
-
-exit 0
+echo "${RED}[+]  Support: https://norrest.github.io/StereoQ/${RESET}"
