@@ -14,6 +14,9 @@ The website will be updated with releases, documentation, and notes.
 Source code (GitHub):
 https://github.com/norrest/SQpl
 
+Dowloads (sourceforge.net):
+https://sourceforge.net/projects/strereoq/
+
 Storage:
 StereoQ Player supports internal SATA drives. Format the drive as EXT4 and it will be mounted automatically at /mnt/USB.
 The folder name is historical, please ignore it.
