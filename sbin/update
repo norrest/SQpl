@@ -7,7 +7,7 @@ echo "${RED}[+] Stop MPD${RESET}"
 mpc stop 2>/dev/null || true
 systemctl stop mpd.socket mpd 2>/dev/null || true
 
-printf "%s%s[+] Clone StereoQ player updates%s\n" "$BLUE" "$BOLD" "$RESET"
+echo "${RED}[+] Clone StereoQ player updates${RESET}"
 rm -rf /update/tmpi
 git clone --depth 1 https://github.com/norrest/SQpl.git /update/tmpi/
 chmod -R 777 /update/tmpi
@@ -28,13 +28,13 @@ systemctl daemon-reload
 chmod +x /sbin/fixes 2>/dev/null || true
 bash /sbin/fixes
 
-echo "${RED}[+] WAIT"
+echo "${RED}[+] Cleanup & MPD setup${RESET}"
 rm -rf /update/tmpi /sbin/fixes
 mkdir -p /var/lib/mpd/playlists /var/lib/mpd/music/WEBRADIO
 chmod -R 777 /var/lib/mpd
 
+echo "${RED}[+] Start services${RESET}"
+systemctl start mpd
+
 echo '<span style="color:#4da3ff;font-weight:900;">[+] Support: https://norrest.github.io/StereoQ/</span>'
 echo '<span style="color:#4da3ff;font-weight:900;">[!] Only if you saw the red warning above: the installation is running in the background. Do not do anything right now. Reboot the player in 5 minutes.</span>'
-
-
-
