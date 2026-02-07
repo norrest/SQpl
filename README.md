@@ -30,7 +30,10 @@ Latest build for Banana Pi M1 :
 
 - USB auto clock (autoclock): added as a configurable option in the UI and stored persistently. This controls automatic clock selection for UAC2 devices and is intended to improve stability with DACs that behave differently depending on clock selection behavior.
 
----- Global Info ----
+
+--------------------
+
+Global Info:
 
 Audio engine:
 - Patched RT MPD (older, stable version that runs reliably) with some modules disabled for better performance and simplicity
