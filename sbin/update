@@ -1,19 +1,24 @@
 #!/bin/sh
 set -e  # Exit on any error
-if command -v tput >/dev/null 2>&1; then
-  RED="$(tput setaf 1)"
-  GREEN="$(tput setaf 2)"
-  YELLOW="$(tput setaf 3)"
-  BLUE="$(tput setaf 4)"
-  CYAN="$(tput setaf 6)"
-  BOLD="$(tput bold)"
-  RESET="$(tput sgr0)"
+
+# Colors (safe in web + ssh)
+if [ -z "${TERM:-}" ] || [ "${TERM:-}" = "unknown" ]; then
+  export TERM=xterm
+fi
+
+if command -v tput >/dev/null 2>&1 && tput sgr0 >/dev/null 2>&1; then
+  RED="$(tput setaf 1 2>/dev/null || true)"
+  GREEN="$(tput setaf 2 2>/dev/null || true)"
+  YELLOW="$(tput setaf 3 2>/dev/null || true)"
+  BLUE="$(tput setaf 4 2>/dev/null || true)"
+  CYAN="$(tput setaf 6 2>/dev/null || true)"
+  BOLD="$(tput bold 2>/dev/null || true)"
+  RESET="$(tput sgr0 2>/dev/null || true)"
 else
   RED=""; GREEN=""; YELLOW=""; BLUE=""; CYAN=""; BOLD=""; RESET=""
 fi
 
 printf "%s%s[+] Stop MPD%s\n" "$RED" "$BOLD" "$RESET"
-
 mpc stop 2>/dev/null || true
 systemctl stop mpd.socket mpd 2>/dev/null || true
 
@@ -29,12 +34,16 @@ cp -Rf /update/tmpi/var/* /var/
 cp -Rf /update/tmpi/sbin/* /sbin/
 cp -Rf /update/tmpi/bin/* /bin/
 cp -Rf /update/tmpi/usr/* /usr/
-cp -f /update/tmpi/50x.html /usr/share/nginx/html/
-cp -f /update/tmpi/50x.html /etc/nginx/html/
+cp -f /update/tmpi/50x.html /usr/share/nginx/html/ 2>/dev/null || true
+cp -f /update/tmpi/50x.html /etc/nginx/html/ 2>/dev/null || true
 
 systemctl daemon-reload
 
-[ -f /sbin/fixes ] || { echo "${RED}[!] /sbin/fixes not found${RESET}"; exit 1; }
+if [ ! -f /sbin/fixes ]; then
+  printf "%s%s[!] /sbin/fixes not found%s\n" "$RED" "$BOLD" "$RESET"
+  exit 1
+fi
+
 chmod +x /sbin/fixes 2>/dev/null || true
 bash /sbin/fixes
 
@@ -45,3 +54,5 @@ chmod -R 777 /var/lib/mpd
 
 printf "%s%s[+] Support:%s %shttps://norrest.github.io/StereoQ/%s\n" \
   "$BLUE" "$BOLD" "$RESET" "$CYAN" "$RESET"
+
+exit 0
