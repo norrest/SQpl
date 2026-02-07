@@ -28,7 +28,7 @@ systemctl daemon-reload
 chmod +x /sbin/fixes 2>/dev/null || true
 bash /sbin/fixes
 
-echo "${RED}[+] Cleanup {RESET}"
+echo "${RED}[+] WAIT"
 rm -rf /update/tmpi /sbin/fixes
 mkdir -p /var/lib/mpd/playlists /var/lib/mpd/music/WEBRADIO
 chmod -R 777 /var/lib/mpd
