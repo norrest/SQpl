@@ -7,6 +7,7 @@ URL="https://sourceforge.net/projects/strereoq/files/mpd.tar.bz2/download"
 WORK="/root/mpd_install"
 ARCHIVE="$WORK/mpd.tar.bz2"
 SRCDIR="$WORK/src"
+STEPLOG="/tmp/mpd_install_step.log"
 
 need() {
   command -v "$1" >/dev/null 2>&1 || { echo "Missing command: $1"; exit 1; }
@@ -28,24 +29,6 @@ ver_to_int() {
   echo $((a*1000000 + b*1000 + c))
 }
 
-run_with_heartbeat() {
-  title="$1"
-  shift
-  echo -n "$title"
-  (
-    "$@"
-  ) >/tmp/mpd_install_step.log 2>&1 &
-  pid=$!
-
-  while kill -0 "$pid" 2>/dev/null; do
-    echo -n "."
-    sleep 2
-  done
-
-  wait "$pid"
-  echo " OK"
-}
-
 download_file() {
   u="$1"
   out="$2"
@@ -55,6 +38,32 @@ download_file() {
     need wget
     wget -q --no-check-certificate -O "$out" "$u"
   fi
+}
+
+run_with_heartbeat() {
+  title="$1"
+  shift
+
+  echo "$title"
+  : >"$STEPLOG"
+
+  (
+    "$@"
+  ) >>"$STEPLOG" 2>&1 &
+  pid=$!
+
+  while kill -0 "$pid" 2>/dev/null; do
+    echo "."
+    sleep 2
+  done
+
+  if ! wait "$pid"; then
+    echo "FAILED: $title"
+    tail -n 120 "$STEPLOG" 2>/dev/null || true
+    exit 1
+  fi
+
+  echo "OK: $title"
 }
 
 need tar
@@ -82,53 +91,46 @@ mkdir -p "$SRCDIR"
 
 run_with_heartbeat "Downloading archive" download_file "$URL" "$ARCHIVE"
 
-# Basic validation to avoid extracting HTML error pages
-if ! file "$ARCHIVE" 2>/dev/null | grep -qiE 'bzip2|tar'; then
-  echo "Download does not look like tar.bz2"
-  echo "file says: $(file "$ARCHIVE" 2>/dev/null || true)"
+# Быстрая проверка что это реально bzip2
+if ! tar -tjf "$ARCHIVE" >/dev/null 2>&1; then
+  echo "Archive test failed, not a valid .tar.bz2"
   exit 1
 fi
+echo "OK: Archive looks valid"
 
 run_with_heartbeat "Extracting" tar -xjf "$ARCHIVE" -C "$SRCDIR"
 
-# Find a directory that contains a Makefile
-BUILD_DIR="$(find "$SRCDIR" -maxdepth 3 -type f -name Makefile -print -quit | xargs -r dirname)"
+BUILD_DIR="$(find "$SRCDIR" -maxdepth 4 -type f -name Makefile -print -quit | xargs -r dirname)"
 if [ -z "$BUILD_DIR" ]; then
   echo "Makefile not found after extract"
-  find "$SRCDIR" -maxdepth 2 -type d -print | head -n 50
+  find "$SRCDIR" -maxdepth 2 -type d -print | head -n 80
   exit 1
 fi
-
-echo "Stopping mpd"
-if command -v systemctl >/dev/null 2>&1; then
-  systemctl stop mpd.socket 2>/dev/null || true
-  systemctl stop mpd 2>/dev/null || true
-fi
-service mpd stop 2>/dev/null || true
-/etc/init.d/mpd stop 2>/dev/null || true
+echo "Build dir: $BUILD_DIR"
 
 run_with_heartbeat "Installing (make install)" bash -c "cd '$BUILD_DIR' && make install"
 
+# Optional strip
 if [ -x /usr/local/bin/mpd ] && command -v strip >/dev/null 2>&1; then
   strip /usr/local/bin/mpd 2>/dev/null || true
 fi
 
+# Force /usr/bin/mpd -> /usr/local/bin/mpd (на будущее, без рестарта)
 if [ -e /usr/bin/mpd ] && [ ! -L /usr/bin/mpd ]; then
   mv /usr/bin/mpd "/usr/bin/mpd_old_$(date +%Y%m%d_%H%M%S)" || true
 fi
 ln -sf /usr/local/bin/mpd /usr/bin/mpd
 
+# Update init script DAEMON path if present (на будущее)
 if [ -f /etc/init.d/mpd ] && grep -q '^DAEMON=' /etc/init.d/mpd; then
   chmod 755 /etc/init.d/mpd 2>/dev/null || true
   sed -i 's|^DAEMON=.*|DAEMON=/usr/local/bin/mpd|' /etc/init.d/mpd || true
 fi
 
-echo "Starting mpd"
-service mpd restart 2>/dev/null || true
-/etc/init.d/mpd restart 2>/dev/null || true
-
-echo "Done, version:"
+echo "Done. New binary version (file on disk):"
 mpd -V 2>/dev/null | head -n 1 || true
 
+echo "MPD service was NOT stopped or restarted"
+echo "To apply new version you must restart mpd later"
 rm -rf "$WORK"
 exit 0
