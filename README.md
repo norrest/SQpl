@@ -17,9 +17,14 @@ StereoQ Player supports internal SATA drives. Format the drive as EXT4 and it wi
 The folder name is historical, please ignore it.
 The mounted drive is also shared on the network as “volumio”, out of respect for the original authors and compatibility.
 
+Network (Samba):
+Please note that Samba access uses the root / root credentials by default.
+You can change them via the console if you want.
+
 Note:
 This project does not use the newer Volumio 2 code or configuration. Volumio 2 unfortunately became a paid product.
 
 SSH access:
 Default credentials are root / rootfs.
 For security, change the default password after the first login.
+
