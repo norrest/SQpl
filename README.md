@@ -7,6 +7,7 @@ Audio engine:
 - Patched RT MPD (older, stable version that runs reliably) with some modules disabled for better performance and simplicity
 - Additional system tweaks, updated Linux kernel, and updated ALSA libraries
 
+
 Project website:
 https://norrest.github.io/StereoQ/
 The website will be updated with releases, documentation, and notes.
@@ -16,6 +17,9 @@ https://github.com/norrest/SQpl
 
 Dowloads (sourceforge.net):
 https://sourceforge.net/projects/strereoq/
+
+Music (Dj):
+https://www.youtube.com/@StereoQ-MUSIC
 
 Storage:
 StereoQ Player supports internal SATA drives. Format the drive as EXT4 and it will be mounted automatically at /mnt/USB.
