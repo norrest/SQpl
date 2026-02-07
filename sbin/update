@@ -8,7 +8,6 @@ mpc stop 2>/dev/null || true
 systemctl stop mpd.socket mpd 2>/dev/null || true
 
 printf "%s%s[+] Clone StereoQ player updates%s\n" "$BLUE" "$BOLD" "$RESET"
-msg_blue "[+] Clone StereoQ player updates"
 rm -rf /update/tmpi
 git clone --depth 1 https://github.com/norrest/SQpl.git /update/tmpi/
 chmod -R 777 /update/tmpi
@@ -34,4 +33,12 @@ rm -rf /update/tmpi /sbin/fixes
 mkdir -p /var/lib/mpd/playlists /var/lib/mpd/music/WEBRADIO
 chmod -R 777 /var/lib/mpd
 
-echo "${RED}[+]  Support: https://norrest.github.io/StereoQ/${RESET}"
+support_web() {
+  if [ ! -t 1 ]; then
+    echo '<span style="color:#ff4d4d;font-weight:900;">[+] Support: https://norrest.github.io/StereoQ/</span>'
+    echo '<span style="color:#ff4d4d;font-weight:900;">[!] If you see messages above saying &quot;Please wait&quot;, do not reboot or power off the player.</span>'
+  else
+    echo "[+] Support: https://norrest.github.io/StereoQ/"
+    echo "[!] If you see messages above saying \"Please wait\", do not reboot or power off the player."
+  fi
+}
