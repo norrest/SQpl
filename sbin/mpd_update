@@ -1,9 +1,6 @@
 #!/bin/bash
 set -e
 
-# MPD installer with hardcoded target version
-# Downloads the archive only if installed MPD is older than TARGET_VER
-
 TARGET_VER="0.20.23"
 URL="https://sourceforge.net/projects/strereoq/files/mpd.tar.bz2/download"
 
@@ -16,7 +13,6 @@ need() {
 }
 
 get_installed_ver() {
-  # Returns "0.20.6" like string, or "0.0.0" if mpd is missing
   if command -v mpd >/dev/null 2>&1; then
     mpd -V 2>/dev/null | awk '/^Music Player Daemon/ {print $4; exit}' | sed 's/[^0-9.].*$//'
   else
@@ -25,7 +21,6 @@ get_installed_ver() {
 }
 
 ver_to_int() {
-  # Converts "0.20.23" to comparable integer
   v="$1"
   a=$(echo "$v" | cut -d. -f1); [ -z "$a" ] && a=0
   b=$(echo "$v" | cut -d. -f2); [ -z "$b" ] && b=0
@@ -33,19 +28,42 @@ ver_to_int() {
   echo $((a*1000000 + b*1000 + c))
 }
 
+run_with_heartbeat() {
+  title="$1"
+  shift
+  echo -n "$title"
+  (
+    "$@"
+  ) >/tmp/mpd_install_step.log 2>&1 &
+  pid=$!
+
+  while kill -0 "$pid" 2>/dev/null; do
+    echo -n "."
+    sleep 2
+  done
+
+  wait "$pid"
+  echo " OK"
+}
+
 download_file() {
   u="$1"
   out="$2"
   if command -v curl >/dev/null 2>&1; then
-    curl -k -L -o "$out" "$u"
+    curl -k -f -L -sS -o "$out" "$u"
   else
     need wget
-    wget --no-check-certificate -O "$out" "$u"
+    wget -q --no-check-certificate -O "$out" "$u"
   fi
 }
 
 need tar
 need make
+need awk
+need sed
+need cut
+need date
+need find
 
 CUR_STR="$(get_installed_ver)"
 CUR_INT="$(ver_to_int "$CUR_STR")"
@@ -62,11 +80,24 @@ fi
 rm -rf "$WORK"
 mkdir -p "$SRCDIR"
 
-echo "Downloading archive"
-download_file "$URL" "$ARCHIVE"
+run_with_heartbeat "Downloading archive" download_file "$URL" "$ARCHIVE"
 
-echo "Extracting"
-tar -xjvf "$ARCHIVE" -C "$SRCDIR" >/dev/null
+# Basic validation to avoid extracting HTML error pages
+if ! file "$ARCHIVE" 2>/dev/null | grep -qiE 'bzip2|tar'; then
+  echo "Download does not look like tar.bz2"
+  echo "file says: $(file "$ARCHIVE" 2>/dev/null || true)"
+  exit 1
+fi
+
+run_with_heartbeat "Extracting" tar -xjf "$ARCHIVE" -C "$SRCDIR"
+
+# Find a directory that contains a Makefile
+BUILD_DIR="$(find "$SRCDIR" -maxdepth 3 -type f -name Makefile -print -quit | xargs -r dirname)"
+if [ -z "$BUILD_DIR" ]; then
+  echo "Makefile not found after extract"
+  find "$SRCDIR" -maxdepth 2 -type d -print | head -n 50
+  exit 1
+fi
 
 echo "Stopping mpd"
 if command -v systemctl >/dev/null 2>&1; then
@@ -76,22 +107,17 @@ fi
 service mpd stop 2>/dev/null || true
 /etc/init.d/mpd stop 2>/dev/null || true
 
-echo "Installing (make install)"
-cd "$SRCDIR"
-make install
+run_with_heartbeat "Installing (make install)" bash -c "cd '$BUILD_DIR' && make install"
 
-# Optional strip
 if [ -x /usr/local/bin/mpd ] && command -v strip >/dev/null 2>&1; then
   strip /usr/local/bin/mpd 2>/dev/null || true
 fi
 
-# Force /usr/bin/mpd -> /usr/local/bin/mpd
 if [ -e /usr/bin/mpd ] && [ ! -L /usr/bin/mpd ]; then
   mv /usr/bin/mpd "/usr/bin/mpd_old_$(date +%Y%m%d_%H%M%S)" || true
 fi
 ln -sf /usr/local/bin/mpd /usr/bin/mpd
 
-# Update init script DAEMON path if present
 if [ -f /etc/init.d/mpd ] && grep -q '^DAEMON=' /etc/init.d/mpd; then
   chmod 755 /etc/init.d/mpd 2>/dev/null || true
   sed -i 's|^DAEMON=.*|DAEMON=/usr/local/bin/mpd|' /etc/init.d/mpd || true
