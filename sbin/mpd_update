@@ -5,7 +5,7 @@ set -e
 # Downloads the archive only if installed MPD is older than TARGET_VER
 
 TARGET_VER="0.20.23"
-URL="https://sourceforge.net/projects/strereoq/files/mpd.tar.bz2/download"
+URL="https://sourceforge.net/projects/stereoq/files/mpd.tar.bz2/download"
 
 WORK="/root/mpd_install"
 ARCHIVE="$WORK/mpd.tar.bz2"
@@ -34,14 +34,13 @@ ver_to_int() {
 }
 
 download_file() {
-  # Downloads via curl or wget
   u="$1"
   out="$2"
   if command -v curl >/dev/null 2>&1; then
-    curl -L -o "$out" "$u"
+    curl -k -L -o "$out" "$u"
   else
     need wget
-    wget -O "$out" "$u"
+    wget --no-check-certificate -O "$out" "$u"
   fi
 }
 
