@@ -28,12 +28,9 @@ systemctl daemon-reload
 chmod +x /sbin/fixes 2>/dev/null || true
 bash /sbin/fixes
 
-echo "${RED}[+] Cleanup & MPD setup${RESET}"
+echo "${RED}[+] Cleanup {RESET}"
 rm -rf /update/tmpi /sbin/fixes
 mkdir -p /var/lib/mpd/playlists /var/lib/mpd/music/WEBRADIO
 chmod -R 777 /var/lib/mpd
 
-echo "${RED}[+] Start services${RESET}"
-systemctl start mpd
-
-echo "${RED}[+] DONE perfectly! Support: https://norrest.github.io/StereoQ/${RESET}"
+echo "${RED}[+]  Support: https://norrest.github.io/StereoQ/${RESET}"
