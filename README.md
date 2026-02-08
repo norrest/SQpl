@@ -32,6 +32,13 @@ Latest build for Banana Pi M1 :
 
 
 --------------------
+<img width="1915" height="872" alt="image" src="https://github.com/user-attachments/assets/df766192-6bb3-4599-92e3-79e29f2af3b2" />
+<img width="1125" height="767" alt="image" src="https://github.com/user-attachments/assets/ff5b55e3-453a-4d14-af29-2cc61c8837cf" />
+<img width="763" height="732" alt="image" src="https://github.com/user-attachments/assets/839ce5c1-3f35-4918-899b-42a0ee5e1f53" />
+<img width="1026" height="747" alt="image" src="https://github.com/user-attachments/assets/3d4440ed-98fb-48ae-bc4f-562bcbb2cb51" />
+<img width="1024" height="670" alt="image" src="https://github.com/user-attachments/assets/07968ff6-4779-4940-8b68-db03c75266bc" />
+<img width="994" height="729" alt="image" src="https://github.com/user-attachments/assets/61af282b-cbab-41da-bfd0-d1d282aae6a2" />
+
 
 Audio engine:
 Patched RT MPD (older, stable version that runs reliably) with some modules disabled for better performance and simplicity
