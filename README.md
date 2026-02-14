@@ -8,8 +8,8 @@ It is built on open-source components. Please see the LICENSE file and third-par
 
 - Updated Samba (SMB) settings to improve compatibility with Windows and other operating systems.
 - Added direct network paths to the Music and WebRadio folders in the Settings menu for easier access and file transfer.
-<img width="700"  alt="image" src="https://github.com/user-attachments/assets/22fa4fc1-a372-4ffe-8b7f-e515d9ef860a" />
-
+- Added time synchronization before updates, including automatic installation of the ntpdate package when missing, and saving the correct time to the hardware clock to prevent HTTPS and Git certificate errors.
+<img width="700" height="302" alt="image" src="https://github.com/user-attachments/assets/b9e58666-5865-4e7b-afd7-9ee658ecc956" />
 
 --------------------
 Latest build for  Banana Pi M1 and Cubieboard A10:
