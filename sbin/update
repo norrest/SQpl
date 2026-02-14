@@ -7,6 +7,22 @@ echo "${RED}[+] Stop MPD${RESET}"
 mpc stop 2>/dev/null || true
 systemctl stop mpd.socket mpd 2>/dev/null || true
 
+echo "${RED}[+] Time sync (best-effort)${RESET}"
+
+# Install ntpdate if missing (no apt-get update), ignore install errors
+if ! command -v ntpdate >/dev/null 2>&1; then
+  apt-get install -y ntpdate >/dev/null 2>&1 || true
+fi
+
+# If ntpdate is available, try to sync time, ignore errors
+if command -v ntpdate >/dev/null 2>&1; then
+  ntpdate -u pool.ntp.org >/dev/null 2>&1 || true
+fi
+
+# Save current system time to RTC, ignore errors
+hwclock -w >/dev/null 2>&1 || true
+
+
 echo "${RED}[+] Clone StereoQ player updates${RESET}"
 rm -rf /update/tmpi
 git clone --depth 1 https://github.com/norrest/SQpl.git /update/tmpi/
