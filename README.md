@@ -4,6 +4,14 @@ StereoQ Player is free to use and distributed free of charge.
 It is built on open-source components. Please see the LICENSE file and third-party licenses for details.
 
 --------------------
+3.02 UI (14 Feb 2026)
+
+- Updated Samba (SMB) settings to improve compatibility with Windows and other operating systems.
+- Added direct network paths to the Music and WebRadio folders in the Settings menu for easier access and file transfer.
+<img width="700"  alt="image" src="https://github.com/user-attachments/assets/22fa4fc1-a372-4ffe-8b7f-e515d9ef860a" />
+
+
+--------------------
 Latest build for  Banana Pi M1 and Cubieboard A10:
 
 - Player UI: updated and refreshed, with several minor UI bugs fixed. Full rebranding from V.A.M.P. to StereoQ Player was completed. For network compatibility and existing setups, the device hostname was intentionally kept as Volumio.
