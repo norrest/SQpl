@@ -24,10 +24,177 @@
         This player is built on the Volumio platform. Out of respect to the original authors,
         the network name remains unchanged.
       </p>
-
       <p class="muted">
         Note: the name is shown for reference. You can select and copy it, but editing is disabled.
       </p>
+	  
+<style>
+  .smb-tip{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:10px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  .smb-tip h4{
+    margin:0 0 10px 0;
+    font-size:14px;
+    font-weight:700;
+    color: rgba(255,255,255,.92);
+  }
+
+  .smb-grid{
+    display:grid;
+    grid-template-columns: 150px 1fr auto;
+    gap:8px 10px;
+    align-items:center;
+  }
+
+  .smb-label{
+    color: rgba(255,255,255,.70);
+    font-size:12px;
+  }
+
+  .smb-tip code{
+    white-space: nowrap;
+    font-variant-ligatures: none;
+    background: rgba(0,0,0,.25);
+    border: 1px solid rgba(255,255,255,.08);
+    color: rgba(255,255,255,.92);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+
+  .smb-btn{
+    cursor:pointer;
+    border-radius:8px;
+    padding: 3px 10px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.06);
+    color: rgba(255,255,255,.85);
+    font-size:12px;
+  }
+
+  .smb-note{
+    grid-column: 1 / -1;
+    color: rgba(255,255,255,.65);
+    font-size:12px;
+    margin-top:-2px;
+    margin-bottom:6px;
+  }
+
+  @media (max-width: 700px){
+    .smb-grid{ grid-template-columns: 1fr; }
+    .smb-btn{ justify-self: start; }
+    .smb-note{ margin-top:0; }
+  }
+  
+.smb-credline{
+  margin-top:10px;
+  padding-top:10px;
+  border-top: 1px solid rgba(255,255,255,.10);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.smb-credtitle{
+  color: rgba(255,255,255,.70);
+  font-size:12px;
+}
+
+.smb-credrow{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.smb-credline{
+  grid-column: 1 / -1;
+}
+
+.smb-credrow{
+  flex: 1;
+}
+
+
+</style>
+
+<div class="smb-tip">
+  <h4>Windows network access</h4>
+
+  <div class="smb-grid">
+    <div class="smb-label">Player SATA disk</div>
+    <code id="smb-music">&#92;&#92;$_player_ip&#92;Volumio disk</code>
+    <button type="button" class="smb-btn" data-copy="smb-music">Copy</button>
+
+    <div class="smb-note">
+      Copy files only when the USB/SATA disk is connected, otherwise data may be written to the player internal storage.
+    </div>
+
+    <div class="smb-label">WebRadio playlists</div>
+    <code id="smb-radio">&#92;&#92;$_player_ip&#92;WebRadio</code>
+    <button type="button" class="smb-btn" data-copy="smb-radio">Copy</button>
+
+    <div class="smb-note">
+      WebRadio share is for radio playlists only.
+    </div>
+	
+<div class="smb-credline">
+  <span class="smb-credtitle">Login &amp; Password</span>
+
+  <div class="smb-credrow">
+    <code id="smb-user">root</code>
+    <button type="button" class="smb-btn" data-copy="smb-user">Copy login</button>
+
+    <code id="smb-pass">root</code>
+    <button type="button" class="smb-btn" data-copy="smb-pass">Copy pass</button>
+  </div>
+</div>
+
+
+  </div>
+</div>
+
+<script>
+  (function () {
+    function copyText(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text)
+      }
+      var ta = document.createElement('textarea')
+      ta.value = text
+      ta.setAttribute('readonly', '')
+      ta.style.position = 'fixed'
+      ta.style.opacity = '0'
+      document.body.appendChild(ta)
+      ta.select()
+      try { document.execCommand('copy') } catch (e) {}
+      document.body.removeChild(ta)
+      return Promise.resolve()
+    }
+
+    document.addEventListener('click', function (e) {
+      var btn = e.target && e.target.closest ? e.target.closest('button[data-copy]') : null
+      if (!btn) return
+      var id = btn.getAttribute('data-copy')
+      var el = document.getElementById(id)
+      if (!el) return
+
+      copyText(el.textContent).then(function () {
+        var old = btn.textContent
+        btn.textContent = 'Copied'
+        setTimeout(function () { btn.textContent = old }, 1200)
+      })
+    })
+  })()
+</script>
+
+
+
     </fieldset>
   </form>
 
