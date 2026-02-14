@@ -456,6 +456,19 @@ $_spotusername = $_SESSION['spotusername'];
 $_spotpassword = $_SESSION['spotpassword'];
 // set template
 $tpl = "settings.html";
+// Player IP for Windows SMB hint
+$player_ip = trim((string)shell_exec('/sbin/IP 2>/dev/null'));
+$player_ip = preg_split('/\s+/', $player_ip)[0];
+
+if (!filter_var($player_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+  $player_ip = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '';
+}
+
+$_player_ip = $player_ip;
+$_smb_share = 'Volumio disk';
+$_smb_unc  = ($player_ip !== '')
+  ? ('\\\\' . $player_ip . '\\' . $_smb_share)
+  : ('\\\\PLAYER_IP\\' . $_smb_share);
 ?>
 
 <?php
