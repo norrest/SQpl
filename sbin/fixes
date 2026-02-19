@@ -8,4 +8,10 @@ bash /sbin/usbdac-db-init
 bash /sbin/mpd_update
 chmod 777 /etc/modprobe.d/*.conf
 (echo rootfs; echo rootfs) | smbpasswd -a -s root
+
+RC="/etc/rc.local"
+if [ -f "$RC" ] && grep -Fq "ethtool -s eth0 speed 100 duplex half" "$RC"; then
+  sed -i '/ethtool -s eth0 speed 100 duplex half/d' "$RC"
+fi
+
 exit 0
