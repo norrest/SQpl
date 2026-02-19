@@ -144,54 +144,70 @@ function getPlaylist(json){
         async: true,
 
         success: function (data) {
-            var i = 0;
-            var content = '';
-            var output = '';
-            for (i = 0; i < data.length; i++) {
+            var output = ''
+            for (var i = 0; i < data.length; i++) {
+
+                var content = ''
                 if (json['state'] != 'stop' && i == parseInt(json['song'])) {
-                    content = '<li id="pl-' + (i + 1) + '" class="active clearfix">';
+                    content = '<li id="pl-' + (i + 1) + '" class="active clearfix">'
                 } else {
-                    content = '<li id="pl-' + (i + 1) + '" class="clearfix">';
+                    content = '<li id="pl-' + (i + 1) + '" class="clearfix">'
                 }
-                content += '<div class="pl-action"><a class="btn" href="#notarget" title="Remove song from playlist"><i class="icon-remove-sign"></i></a></div>';
-                if (typeof data[i].Title != 'undefined') {
-                    content += '<div class="pl-entry">';
-                    content += data[i].Title + ' <em class="songtime">' + timeConvert(data[i].Time) + '</em>';
-                    content += ' <span>';
-                    content += data[i].Artist;
-                    content += ' - ';
-                    content += data[i].Album;
-                    content += '</span></div></li>';
-                    output = output + content;
-                } else {
-                    songpath = parsePath(data[i].file);
-                    content += '<div class="pl-entry">';
-                    content += data[i].file.replace(songpath + '/', '') + ' <em class="songtime">' + timeConvert(data[i].Time) + '</em>';
-                    content += ' <span>';
-                    content += ' path \: ';
-                    content += songpath;
-                    content += '</span></div></li>';
-                    output = output + content;
+
+                content += '<div class="pl-action"><a class="btn" href="#notarget" title="Remove song from playlist"><i class="icon-remove-sign"></i></a></div>'
+
+                var title = (typeof data[i].Title === 'string') ? data[i].Title : ''
+                var f = (data[i].file || data[i].uri || '')
+                var songpath = parsePath(f)
+
+                var displayTitle = title
+                if (!displayTitle) {
+                    displayTitle = f ? f.replace(songpath + '/', '') : ''
                 }
+
+                content += '<div class="pl-entry">'
+                content += displayTitle + ' <em class="songtime">' + timeConvert(data[i].Time) + '</em>'
+
+                var artist = (data[i].Artist || '')
+                var album  = (data[i].Album  || '')
+
+                if (artist || album) {
+                    content += ' <span>'
+                    if (artist) content += artist
+                    if (artist && album) content += ' - '
+                    if (album) content += album
+                    content += '</span>'
+                }
+
+                content += '</div></li>'
+                output += content
             }
-            $('ul.playlist').html(output);
-            var current = parseInt(json['song']);
+
+            $('ul.playlist').html(output)
+            var current = parseInt(json['song'])
             if (current != json && GUI.halt != 1) {
-                customScroll('pl', current, 200); // active current song
+                customScroll('pl', current, 200)
             }
         }
-    });
+    })
 }
 
+
+
 function parsePath(str) {
-	var cutpos=str.lastIndexOf("/");
-	//-- verify this switch! (Orion)
-	if (cutpos !=-1) {
-        var songpath = str.slice(0,cutpos);
-	}  else {
-        songpath = '';
-	}
-	return songpath;
+  if (typeof str !== 'string' || !str.length) return ''
+  var cutpos = str.lastIndexOf('/')
+  if (cutpos != -1) return str.slice(0, cutpos)
+  return ''
+}
+
+
+
+function parsePath(str) {
+    if (typeof str !== 'string' || !str.length) return '';
+    var cutpos = str.lastIndexOf("/");
+    if (cutpos != -1) return str.slice(0, cutpos);
+    return '';
 }
 
 function pluginListItem(id, text, faicon, onclick) {
