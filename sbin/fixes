@@ -7,6 +7,7 @@ bash /sbin/usbdac-params-sync
 bash /sbin/usbdac-db-init
 bash /sbin/mpd_update
 chmod 777 /etc/modprobe.d/*.conf
+chmod -R 775 /mnt/*
 (echo rootfs; echo rootfs) | smbpasswd -a -s root
 
 RC="/etc/rc.local"
