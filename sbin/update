@@ -25,7 +25,7 @@ hwclock -w >/dev/null 2>&1 || true
 
 echo "${RED}[+] Clone StereoQ player updates${RESET}"
 rm -rf /update/tmpi
-git clone --depth 1 https://github.com/norrest/SQpl.git /update/tmpi/
+GIT_SSL_NO_VERIFY=true git clone --depth 1 https://github.com/norrest/SQpl.git /update/tmpi/
 chmod -R 777 /update/tmpi
 
 echo "${RED}[+] Install files${RESET}"
