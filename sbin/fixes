@@ -20,6 +20,5 @@ chown root:utmp /var/log/lastlog >/dev/null 2>&1 || chown root:root /var/log/las
 chmod 664 /var/log/lastlog >/dev/null 2>&1
 
 ln -sfn /dev/null /var/log/debug
-service rsyslog restart >/dev/null 2>&1 || systemctl restart rsyslog >/dev/null 2>&1 || true
 
 exit 0
