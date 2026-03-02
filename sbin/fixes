@@ -15,4 +15,11 @@ if [ -f "$RC" ] && grep -Fq "ethtool -s eth0 speed 100 duplex half" "$RC"; then
   sed -i '/ethtool -s eth0 speed 100 duplex half/d' "$RC"
 fi
 
+touch /var/log/lastlog >/dev/null 2>&1
+chown root:utmp /var/log/lastlog >/dev/null 2>&1 || chown root:root /var/log/lastlog >/dev/null 2>&1
+chmod 664 /var/log/lastlog >/dev/null 2>&1
+
+ln -sfn /dev/null /var/log/debug
+service rsyslog restart >/dev/null 2>&1 || systemctl restart rsyslog >/dev/null 2>&1 || true
+
 exit 0
