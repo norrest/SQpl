@@ -1,6 +1,16 @@
 #!/bin/sh
 set -eu
 
+# Detect board model (device-tree strings may contain NUL bytes)
+model="$(tr -d '\0' < /proc/device-tree/model 2>/dev/null || echo unknown)"
+
+# Cubietruck: skip everything (no version check, no update)
+if echo "$model" | grep -qi 'cubietruck'; then
+  echo "board  : $model"
+  echo "you have cubietruck!!! no update needed"
+  exit 0
+fi
+
 cur="$(uname -r | sed -e 's/[^0-9]//g')"
 need="6675"
 
@@ -8,11 +18,12 @@ f1="linux-dtb-legacy-sunxi_26.02.0-trunk_armhf__6.6.75.deb"
 f2="linux-image-legacy-sunxi_26.02.0-trunk_armhf__6.6.75.deb"
 base="https://sourceforge.net/projects/strereoq/files"
 
+echo "board  : $model"
 echo "current: $cur"
 echo "need   : $need"
 echo "workdir: $(pwd)"
 
-# удаляем все deb в текущей папке
+# Remove all .deb files in the current directory
 rm -f ./*.deb 2>/dev/null || true
 
 if [ "$cur" != "$need" ]; then
@@ -28,7 +39,6 @@ if [ "$cur" != "$need" ]; then
 
   echo "installing"
   dpkg -i "./$f1" "./$f2" || apt-get -f install -y
-
 else
   echo "no need to update"
 fi
