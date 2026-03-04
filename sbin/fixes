@@ -67,4 +67,13 @@ if command -v systemctl >/dev/null 2>&1; then
   systemctl mask display-manager.service >/dev/null 2>&1 || true
 fi
 
+# Remove unused bonding module autoload (clean boot logs)
+if [ -f /etc/modules ]; then
+  sed -i '/^[[:space:]]*bonding[[:space:]]*$/d' /etc/modules 2>/dev/null || true
+fi
+
+if [ -f /etc/modules-load.d/modules.conf ]; then
+  sed -i '/^[[:space:]]*bonding[[:space:]]*$/d' /etc/modules-load.d/modules.conf 2>/dev/null || true
+fi
+
 exit 0
