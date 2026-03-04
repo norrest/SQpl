@@ -128,4 +128,13 @@ if command -v update-rc.d >/dev/null 2>&1; then
   update-rc.d -f ntpdate remove >/dev/null 2>&1 || true
 fi
 
+# Disable ntpdate auto-run on network-up (keep ntpdate for manual/update use)
+if [ -f /etc/network/if-up.d/ntpdate ]; then
+  chmod -x /etc/network/if-up.d/ntpdate >/dev/null 2>&1 || true
+fi
+
+if [ -f /etc/default/ntpdate ]; then
+  sed -i 's/^ENABLED=.*/ENABLED=0/' /etc/default/ntpdate >/dev/null 2>&1 || true
+fi
+
 exit 0
