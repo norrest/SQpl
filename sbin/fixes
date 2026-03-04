@@ -62,4 +62,9 @@ if dpkg -s ntp >/dev/null 2>&1; then
   DEBIAN_FRONTEND=noninteractive apt-get -y -qq autoremove --purge >/dev/null 2>&1 || true
 fi
 
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl set-default multi-user.target >/dev/null 2>&1 || true
+  systemctl mask display-manager.service >/dev/null 2>&1 || true
+fi
+
 exit 0
