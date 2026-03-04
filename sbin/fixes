@@ -108,4 +108,14 @@ if [ -f "$RC" ] && grep -Fq '/var/www/command/player_wdog.sh startup & > /dev/nu
   sed -i 's|/var/www/command/player_wdog.sh startup & > /dev/null 2>&1|/var/www/command/player_wdog.sh startup >/dev/null 2>\&1 \&|' "$RC"
 fi
 
+# Disable hostapd (no Wi-Fi on this device)
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl stop hostapd >/dev/null 2>&1 || true
+  systemctl disable hostapd >/dev/null 2>&1 || true
+fi
+
+if command -v update-rc.d >/dev/null 2>&1; then
+  update-rc.d -f hostapd remove >/dev/null 2>&1 || true
+fi
+
 exit 0
