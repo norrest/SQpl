@@ -98,4 +98,9 @@ if [ -f /etc/init.d/smbd ] && grep -q 'samba-tool testparm' /etc/init.d/smbd; th
   sed -i 's/samba-tool testparm/testparm -s/g' /etc/init.d/smbd >/dev/null 2>&1 || true
 fi
 
+# rc.local: replace "sudo python shapes_and_ip_clone.py" with background run (only if present)
+if [ -f "$RC" ] && grep -Fq 'sudo python shapes_and_ip_clone.py' "$RC"; then
+  sed -i '/^[[:space:]]*sudo[[:space:]]\+python[[:space:]]\+shapes_and_ip_clone\.py[[:space:]]*$/c\python ./shapes_and_ip_clone.py >/dev/null 2>&1 &' "$RC"
+fi
+
 exit 0
