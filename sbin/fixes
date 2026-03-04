@@ -35,7 +35,7 @@ mkdir -p /etc/tmpfiles.d
 rm -f /etc/tmpfiles.d/no-wtmp.conf /etc/tmpfiles.d/no-lastlog.conf 2>/dev/null
 
 # Override default var.conf to avoid wtmp/btmp conflicts
-if [ -f /usr/lib/tmpfiles.d/var.conf ] && [ ! -f /etc/tmpfiles.d/var.conf ]; then
+if [ -f /usr/lib/tmpfiles.d/var.conf ]; then
   cp -f /usr/lib/tmpfiles.d/var.conf /etc/tmpfiles.d/var.conf
 fi
 if [ -f /etc/tmpfiles.d/var.conf ]; then
