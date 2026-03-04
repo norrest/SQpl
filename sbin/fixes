@@ -30,9 +30,19 @@ if [ -f "$RC" ]; then
   fi
 fi
 
-touch /var/log/lastlog >/dev/null 2>&1
-chown root:utmp /var/log/lastlog >/dev/null 2>&1 || chown root:root /var/log/lastlog >/dev/null 2>&1
-chmod 664 /var/log/lastlog >/dev/null 2>&1
+# Disable login accounting files (avoid writes to SD)
+if command -v systemd-tmpfiles >/dev/null 2>&1; then
+  rm -f /var/log/wtmp /var/log/btmp /var/log/lastlog
+
+  mkdir -p /etc/tmpfiles.d
+  cat >/etc/tmpfiles.d/no-login-logs.conf <<'EOF'
+L /var/log/wtmp - - - - /dev/null
+L /var/log/btmp - - - - /dev/null
+L /var/log/lastlog - - - - /dev/null
+EOF
+
+  systemd-tmpfiles --create /etc/tmpfiles.d/no-login-logs.conf >/dev/null 2>&1 || true
+fi
 
 ln -sfn /dev/null /var/log/debug
 
