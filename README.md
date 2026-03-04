@@ -4,6 +4,16 @@ StereoQ Player is free to use and distributed free of charge.
 It is built on open-source components. Please see the LICENSE file and third-party licenses for details.
 
 --------------------
+3.03 UI (03 Mar 2026)
+
+- Fixed boot-time log noise by disabling login accounting logs (wtmp, btmp, lastlog) via tmpfiles to reduce SD-card writes
+- Removed legacy ethtool -s eth0 speed 100 duplex half line from /etc/rc.local and ensured chmod -R 777 /mnt/* is present without duplicates
+- Removed ntpd package and left one-shot time sync via ntpdate to avoid UDP/123 conflicts
+- Built a separate Cubietruck firmware with SPDIF support
+-- Disabled Bluetooth modules to stop BCM reset/timeout spam in kernel logs
+-- Switched default target to multi-user.target and masked display-manager.service to avoid unnecessary graphical target warnings
+
+--------------------
 3.02 UI (14 Feb 2026)
 
 - Updated Samba (SMB) settings to improve compatibility with Windows and other operating systems.
