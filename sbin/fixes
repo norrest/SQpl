@@ -31,18 +31,27 @@ if [ -f "$RC" ]; then
 fi
 
 # Disable login accounting files (avoid writes to SD)
+mkdir -p /etc/tmpfiles.d
 rm -f /etc/tmpfiles.d/no-wtmp.conf /etc/tmpfiles.d/no-lastlog.conf 2>/dev/null
+
+# Override default var.conf to avoid wtmp/btmp conflicts
+if [ -f /usr/lib/tmpfiles.d/var.conf ] && [ ! -f /etc/tmpfiles.d/var.conf ]; then
+  cp -f /usr/lib/tmpfiles.d/var.conf /etc/tmpfiles.d/var.conf
+fi
+if [ -f /etc/tmpfiles.d/var.conf ]; then
+  sed -i '/^f \/var\/log\/wtmp\b/d;/^f \/var\/log\/btmp\b/d' /etc/tmpfiles.d/var.conf
+fi
+
 if command -v systemd-tmpfiles >/dev/null 2>&1; then
   rm -f /var/log/wtmp /var/log/btmp /var/log/lastlog
 
-  mkdir -p /etc/tmpfiles.d
   cat >/etc/tmpfiles.d/no-login-logs.conf <<'EOF'
 L /var/log/wtmp - - - - /dev/null
 L /var/log/btmp - - - - /dev/null
 L /var/log/lastlog - - - - /dev/null
 EOF
 
-  systemd-tmpfiles --create /etc/tmpfiles.d/no-login-logs.conf >/dev/null 2>&1 || true
+  systemd-tmpfiles --create >/dev/null 2>&1 || true
 fi
 
 ln -sfn /dev/null /var/log/debug
