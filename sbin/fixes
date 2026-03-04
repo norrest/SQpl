@@ -13,19 +13,27 @@ chmod -R 777 /mnt/*
 RC="/etc/rc.local"
 
 ETHTOOL_LINE="ethtool -s eth0 speed 100 duplex half"
-CHMOD_OK="chmod -R 777 /mnt/*"
-CHMOD_BAD="chmod 777 -R /mnt/*"
+
+CHMOD_BG='( chmod -R 777 /mnt/* >/dev/null 2>&1 ) &'
+CHMOD_FG='chmod -R 777 /mnt/*'
 
 if [ -f "$RC" ]; then
+  # remove legacy ethtool line
   if grep -Fq "$ETHTOOL_LINE" "$RC"; then
     sed -i "\|$ETHTOOL_LINE|d" "$RC"
   fi
 
-  if ! grep -Fq "$CHMOD_OK" "$RC" && ! grep -Fq "$CHMOD_BAD" "$RC"; then
+  # if old foreground chmod exists, replace it with background version
+  if grep -Fq "$CHMOD_FG" "$RC" && ! grep -Fq "$CHMOD_BG" "$RC"; then
+    sed -i "s|$CHMOD_FG|$CHMOD_BG|g" "$RC"
+  fi
+
+  # if neither exists, add background version before exit 0
+  if ! grep -Fq "$CHMOD_BG" "$RC" && ! grep -Fq "$CHMOD_FG" "$RC"; then
     if grep -q '^[[:space:]]*exit 0' "$RC"; then
-      sed -i "/^[[:space:]]*exit 0/i\\$CHMOD_OK" "$RC"
+      sed -i "/^[[:space:]]*exit 0/i\\$CHMOD_BG" "$RC"
     else
-      printf '\n%s\n' "$CHMOD_OK" >> "$RC"
+      printf '\n%s\n' "$CHMOD_BG" >> "$RC"
     fi
   fi
 fi
