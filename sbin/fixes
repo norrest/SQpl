@@ -11,8 +11,23 @@ chmod -R 777 /mnt/*
 (echo rootfs; echo rootfs) | smbpasswd -a -s root
 
 RC="/etc/rc.local"
-if [ -f "$RC" ] && grep -Fq "ethtool -s eth0 speed 100 duplex half" "$RC"; then
-  sed -i '/ethtool -s eth0 speed 100 duplex half/d' "$RC"
+
+ETHTOOL_LINE="ethtool -s eth0 speed 100 duplex half"
+CHMOD_OK="chmod -R 777 /mnt/*"
+CHMOD_BAD="chmod 777 -R /mnt/*"
+
+if [ -f "$RC" ]; then
+  if grep -Fq "$ETHTOOL_LINE" "$RC"; then
+    sed -i "\|$ETHTOOL_LINE|d" "$RC"
+  fi
+
+  if ! grep -Fq "$CHMOD_OK" "$RC" && ! grep -Fq "$CHMOD_BAD" "$RC"; then
+    if grep -q '^[[:space:]]*exit 0' "$RC"; then
+      sed -i "/^[[:space:]]*exit 0/i\\$CHMOD_OK" "$RC"
+    else
+      printf '\n%s\n' "$CHMOD_OK" >> "$RC"
+    fi
+  fi
 fi
 
 touch /var/log/lastlog >/dev/null 2>&1
