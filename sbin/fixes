@@ -76,9 +76,17 @@ if [ -f /etc/modules-load.d/modules.conf ]; then
   sed -i '/^[[:space:]]*bonding[[:space:]]*$/d' /etc/modules-load.d/modules.conf 2>/dev/null || true
 fi
 
+# Disable NetBIOS and Samba AD DC (keep smbd for \\IP\share)
 if command -v systemctl >/dev/null 2>&1; then
-  systemctl disable --now samba-ad-dc 2>/dev/null || true
-  systemctl disable --now nmbd 2>/dev/null || true
+  systemctl stop nmbd samba-ad-dc >/dev/null 2>&1 || true
+  systemctl disable nmbd samba-ad-dc >/dev/null 2>&1 || true
+  systemctl mask nmbd.service samba-ad-dc.service >/dev/null 2>&1 || true
+  systemctl daemon-reload >/dev/null 2>&1 || true
+fi
+
+if command -v update-rc.d >/dev/null 2>&1; then
+  update-rc.d -f nmbd remove >/dev/null 2>&1 || true
+  update-rc.d -f samba-ad-dc remove >/dev/null 2>&1 || true
 fi
 
 exit 0
