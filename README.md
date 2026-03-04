@@ -9,6 +9,11 @@ It is built on open-source components. Please see the LICENSE file and third-par
 - Fixed boot-time log noise by disabling login accounting logs (wtmp, btmp, lastlog) via tmpfiles to reduce SD-card writes
 - Removed legacy ethtool -s eth0 speed 100 duplex half line from /etc/rc.local and ensured chmod -R 777 /mnt/* is present without duplicates
 - Removed ntpd package and left one-shot time sync via ntpdate to avoid UDP/123 conflicts
+- Disabled Samba AD DC and NetBIOS services (samba-ad-dc, nmbd) to speed up boot while keeping SMB access via \\IP\share
+- Optimized Samba for IP-only access (bind to eth0, port 445 only, NetBIOS disabled)
+- Speeded up smbd startup by removing the slow samba-tool check in the init script
+- Updated /etc/rc.local: run shapes_and_ip_clone.py in background on Banana Pi boards with OLED display to show quick IP/status info, without delaying boot
+- Disabled hostapd on devices without Wi-Fi and removed unused bonding autoload entry
 - Built a separate Cubietruck firmware with SPDIF support
 -- Disabled Bluetooth modules to stop BCM reset/timeout spam in kernel logs
 -- Switched default target to multi-user.target and masked display-manager.service to avoid unnecessary graphical target warnings
