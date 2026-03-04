@@ -46,4 +46,10 @@ fi
 
 ln -sfn /dev/null /var/log/debug
 
+# Remove ntpd daemon if installed
+if dpkg -s ntp >/dev/null 2>&1; then
+  DEBIAN_FRONTEND=noninteractive apt-get -y -qq purge ntp >/dev/null 2>&1 || true
+  DEBIAN_FRONTEND=noninteractive apt-get -y -qq autoremove --purge >/dev/null 2>&1 || true
+fi
+
 exit 0
