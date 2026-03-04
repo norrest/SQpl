@@ -31,6 +31,7 @@ if [ -f "$RC" ]; then
 fi
 
 # Disable login accounting files (avoid writes to SD)
+rm -f /etc/tmpfiles.d/no-wtmp.conf /etc/tmpfiles.d/no-lastlog.conf 2>/dev/null
 if command -v systemd-tmpfiles >/dev/null 2>&1; then
   rm -f /var/log/wtmp /var/log/btmp /var/log/lastlog
 
