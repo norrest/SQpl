@@ -89,4 +89,9 @@ if command -v update-rc.d >/dev/null 2>&1; then
   update-rc.d -f samba-ad-dc remove >/dev/null 2>&1 || true
 fi
 
+# Speed up smbd start: avoid slow samba-tool (AD DC is never used)
+if [ -f /etc/init.d/smbd ] && grep -q 'samba-tool testparm' /etc/init.d/smbd; then
+  sed -i 's/samba-tool testparm/testparm -s/g' /etc/init.d/smbd >/dev/null 2>&1 || true
+fi
+
 exit 0
