@@ -76,4 +76,9 @@ if [ -f /etc/modules-load.d/modules.conf ]; then
   sed -i '/^[[:space:]]*bonding[[:space:]]*$/d' /etc/modules-load.d/modules.conf 2>/dev/null || true
 fi
 
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl disable --now samba-ad-dc 2>/dev/null || true
+  systemctl disable --now nmbd 2>/dev/null || true
+fi
+
 exit 0
