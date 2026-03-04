@@ -103,4 +103,9 @@ if [ -f "$RC" ] && grep -Fq 'sudo python shapes_and_ip_clone.py' "$RC"; then
   sed -i '/^[[:space:]]*sudo[[:space:]]\+python[[:space:]]\+shapes_and_ip_clone\.py[[:space:]]*$/c\python ./shapes_and_ip_clone.py >/dev/null 2>&1 &' "$RC"
 fi
 
+# rc.local: fix watchdog line redirection (only if present)
+if [ -f "$RC" ] && grep -Fq '/var/www/command/player_wdog.sh startup & > /dev/null 2>&1' "$RC"; then
+  sed -i 's|/var/www/command/player_wdog.sh startup & > /dev/null 2>&1|/var/www/command/player_wdog.sh startup >/dev/null 2>\&1 \&|' "$RC"
+fi
+
 exit 0
