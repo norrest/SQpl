@@ -118,4 +118,14 @@ if command -v update-rc.d >/dev/null 2>&1; then
   update-rc.d -f hostapd remove >/dev/null 2>&1 || true
 fi
 
+# Disable ntpdate autostart (time sync is done only during update script)
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl stop ntpdate >/dev/null 2>&1 || true
+  systemctl disable ntpdate >/dev/null 2>&1 || true
+fi
+
+if command -v update-rc.d >/dev/null 2>&1; then
+  update-rc.d -f ntpdate remove >/dev/null 2>&1 || true
+fi
+
 exit 0
