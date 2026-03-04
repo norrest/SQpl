@@ -11,29 +11,25 @@ chmod -R 777 /mnt/*
 (echo rootfs; echo rootfs) | smbpasswd -a -s root
 
 RC="/etc/rc.local"
-
 ETHTOOL_LINE="ethtool -s eth0 speed 100 duplex half"
-
 CHMOD_BG='( chmod -R 777 /mnt/* >/dev/null 2>&1 ) &'
-CHMOD_FG='chmod -R 777 /mnt/*'
 
 if [ -f "$RC" ]; then
-  # remove legacy ethtool line
-  if grep -Fq "$ETHTOOL_LINE" "$RC"; then
-    sed -i "\|$ETHTOOL_LINE|d" "$RC"
-  fi
+  # remove legacy ethtool
+  sed -i "\|$ETHTOOL_LINE|d" "$RC" 2>/dev/null || true
 
-  # if old foreground chmod exists, replace it with background version
-  if grep -Fq "$CHMOD_FG" "$RC" && ! grep -Fq "$CHMOD_BG" "$RC"; then
-    sed -i "s|$CHMOD_FG|$CHMOD_BG|g" "$RC"
-  fi
+  # normalize exit 0 line
+  sed -i 's/^[[:space:]]*exit 0.*/exit 0/' "$RC" 2>/dev/null || true
 
-  # if neither exists, add background version before exit 0
-  if ! grep -Fq "$CHMOD_BG" "$RC" && ! grep -Fq "$CHMOD_FG" "$RC"; then
+  # drop any old chmod lines for /mnt
+  sed -i '/chmod -R 777 \/mnt\/\*/d' "$RC" 2>/dev/null || true
+
+  # add background chmod once
+  if ! grep -Fq "$CHMOD_BG" "$RC"; then
     if grep -q '^[[:space:]]*exit 0' "$RC"; then
-      sed -i "/^[[:space:]]*exit 0/i\\$CHMOD_BG" "$RC"
+      sed -i "/^[[:space:]]*exit 0/i\\$CHMOD_BG" "$RC" 2>/dev/null || true
     else
-      printf '\n%s\n' "$CHMOD_BG" >> "$RC"
+      printf '\n%s\nexit 0\n' "$CHMOD_BG" >> "$RC"
     fi
   fi
 fi
