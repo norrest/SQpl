@@ -1,137 +1,189 @@
-# Copyright (c) 2014 Adafruit Industries
-# Author: Tony DiCola
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
 import time
-import sys
 import socket
 import fcntl
 import struct
-from time import sleep
+import subprocess
 
-import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
-
-from PIL import Image
-from PIL import ImageDraw
-from PIL import ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 
-# This function allows us to grab any of our IP addresses
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    return socket.inet_ntoa(fcntl.ioctl(
-        s.fileno(),
-        0x8915,  # SIOCGIFADDR
-        struct.pack('256s', ifname[:15])
-    )[20:24])
- 
+    name = ifname[:15]
+    try:
+        if isinstance(name, unicode):
+            name = name.encode("utf-8")
+    except NameError:
+        pass
+    return socket.inet_ntoa(
+        fcntl.ioctl(s.fileno(), 0x8915, struct.pack("256s", name))[20:24]
+    )
 
 
-# Raspberry Pi pin configuration:
-#RST = 24
-# Note the following are only used with SPI:
-DC = 23
-SPI_PORT = 0
-SPI_DEVICE = 0
-TEXT = ''
+def usb_audio_present():
+    try:
+        with open("/proc/asound/cards", "r") as f:
+            data = f.read().lower()
+        if "usb" in data and ("audio" in data or "usb-audio" in data):
+            return True
+        if "usb-audio" in data:
+            return True
+    except IOError:
+        pass
 
-# Beaglebone Black pin configuration:
-RST = 'P9_12'
-# Note the following are only used with SPI:
-# DC = 'P9_15'
-# SPI_PORT = 1
-# SPI_DEVICE = 0
+    try:
+        out = subprocess.check_output(["aplay", "-l"])
+        try:
+            out = out.decode("utf-8", "ignore")
+        except Exception:
+            pass
+        out = out.lower()
+        if "usb" in out and "card" in out:
+            return True
+    except Exception:
+        pass
 
-# 128x32 display with hardware I2C:
-#disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST)
+    return False
 
-# 128x64 display with hardware I2C:
-# disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
 
-# Note you can change the I2C address by passing an i2c_address parameter like:
+def get_eth_speed_short(ifname="eth0"):
+    # English-only comments
+    carrier_path = "/sys/class/net/{}/carrier".format(ifname)
+    speed_path = "/sys/class/net/{}/speed".format(ifname)
+
+    try:
+        carrier = open(carrier_path, "r").read().strip()
+        if carrier != "1":
+            return "NO LINK"
+    except Exception:
+        return "NO LINK"
+
+    try:
+        speed = open(speed_path, "r").read().strip()
+    except Exception:
+        return "LINK"
+
+    if speed == "-1":
+        return "LINK"
+
+    try:
+        s = int(speed)
+    except Exception:
+        return "LINK"
+
+    if s >= 2500:
+        return "2.5G"
+    if s >= 1000:
+        return "1G"
+    if s >= 100:
+        return "100M"
+    if s >= 10:
+        return "10M"
+    return "LINK"
+
+
+def draw_eth_icon(draw, x, y):
+    draw.rectangle((x, y + 3, x + 16, y + 14), outline=255, fill=0)
+    for i in range(4):
+        draw.line((x + 3 + i * 3, y + 5, x + 3 + i * 3, y + 9), fill=255)
+    draw.line((x + 8, y + 14, x + 8, y + 17), fill=255)
+
+
+def draw_usb_icon(draw, x, y):
+    draw.line((x + 8, y + 14, x + 8, y + 5), fill=255)
+    draw.line((x + 8, y + 5, x + 4, y + 7), fill=255)
+    draw.line((x + 8, y + 5, x + 12, y + 7), fill=255)
+    draw.line((x + 8, y + 5, x + 8, y + 2), fill=255)
+    draw.polygon([(x + 8, y + 1), (x + 6, y + 3), (x + 10, y + 3)], outline=255, fill=0)
+    draw.rectangle((x + 11, y + 7, x + 14, y + 10), outline=255, fill=0)
+    draw.ellipse((x + 2, y + 6, x + 4, y + 8), outline=255, fill=255)
+
+
+def draw_speed_icon(draw, x, y):
+    # English-only comments
+    draw.arc((x, y, x + 12, y + 12), 200, 340, fill=255)
+    draw.line((x + 6, y + 6, x + 10, y + 4), fill=255)
+    draw.ellipse((x + 5, y + 5, x + 7, y + 7), outline=255, fill=255)
+    return 12
+
+
+def load_font(path, size):
+    try:
+        return ImageFont.truetype(path, size)
+    except Exception:
+        return ImageFont.load_default()
+
+
+def text_size(draw, text, font):
+    try:
+        return draw.textsize(text, font=font)
+    except Exception:
+        return (len(text) * 6, 10)
+
+
+RST = "P9_12"
 disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST, i2c_address=0x3C)
 
-# Alternatively you can specify an explicit I2C bus number, for example
-# with the 128x32 display you would use:
-# disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST, i2c_bus=2)
-
-# 128x32 display with hardware SPI:
-# disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST, dc=DC, spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE, max_speed_hz=8000000))
-
-# 128x64 display with hardware SPI:
-# disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST, dc=DC, spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE, max_speed_hz=8000000))
-
-# Alternatively you can specify a software SPI implementation by providing
-# digital GPIO pin numbers for all the required display pins.  For example
-# on a Raspberry Pi with the 128x32 display you might use:
-# disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST, dc=DC, sclk=18, din=25, cs=22)
-
-# Initialize library.
 disp.begin()
-
-# Clear display.
 disp.clear()
 disp.display()
 
-# This sets TEXT equal to whatever your IP address is, or isn't
-try:
-    TEXT = get_ip_address('wlan0') # WiFi address of WiFi adapter. NOT ETHERNET
-except IOError:
-    try:
-        TEXT = get_ip_address('eth0') # WiFi address of Ethernet cable. NOT ADAPTER
-    except IOError:
-        TEXT = ('NO INTERNET!')
-		
-# Create blank image for drawing.
-# Make sure to create image with mode '1' for 1-bit color.
-width = disp.width
-height = disp.height
-image = Image.new('1', (width, height))
+W, H = disp.width, disp.height
 
-# Get drawing object to draw on image.
+EDGE_X = 12
+usable_w = W - EDGE_X * 2
+
+font_path = "Pokemon X and Y.ttf"
+font_ip = load_font(font_path, 22)
+font_small = load_font(font_path, 14)
+
+image = Image.new("1", (W, H))
 draw = ImageDraw.Draw(image)
 
-# Draw a black filled box to clear the image.
-draw.rectangle((0,0,width,height), outline=0, fill=0)
 
-# Draw some shapes.
-# First define some constants to allow easy resizing of shapes.
-padding = 2
-shape_width = 20
-top = padding
-bottom = height-padding
-# Move left to right keeping track of the current x position for drawing shapes.
-x = padding
+def centered_x(text, font):
+    w, _ = text_size(draw, text, font)
+    return EDGE_X + max(0, (usable_w - w) // 2)
 
-# Load default font.
-font = ImageFont.truetype('Pokemon X and Y.ttf', 24)
-#font = ImageFont.load_default()
 
-# Alternatively load a TTF font.  Make sure the .ttf font file is in the same directory as the python script!
-# Some other nice fonts to try: http://www.dafont.com/bitmap.php
+try:
+    ip = get_ip_address("eth0")
+except IOError:
+    ip = "NO IP"
 
-# Write two lines of text.
-draw.text((x+5, top),TEXT,  font=font, fill=255)
-draw.text((x+37, top+30), 'StereoQ', font=font, fill=255)
-#draw.text((x, top+40), 'v.A.M.P.', font=font, fill=255)
-# Display image.
+speed = get_eth_speed_short("eth0")
+usb_ok = usb_audio_present()
+
+draw.rectangle((0, 0, W, H), outline=0, fill=0)
+
+draw_eth_icon(draw, 2, 0)
+
+if usb_ok:
+    draw_usb_icon(draw, W - 18, 0)
+
+draw.text((centered_x(ip, font_ip), 18), ip, font=font_ip, fill=255)
+
+gap = 4
+icon_w = 12
+speed_w, _ = text_size(draw, speed, font_small)
+group_w = icon_w + gap + speed_w
+group_x = EDGE_X + max(0, (usable_w - group_w) // 2)
+
+draw_speed_icon(draw, group_x, 48)
+draw.text((group_x + icon_w + gap, 48), speed, font=font_small, fill=255)
+
 disp.image(image)
 disp.display()
-time.sleep(0.01)
+
+# Auto blank after 5 minutes
+time.sleep(300)
+
+disp.clear()
+disp.display()
+
+# OLED off command, script must run again to turn it on
+try:
+    disp.command(0xAE)
+except Exception:
+    pass
