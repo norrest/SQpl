@@ -4,6 +4,11 @@ StereoQ Player is free to use and distributed free of charge.
 It is built on open-source components. Please see the LICENSE file and third-party licenses for details.
 
 --------------------
+3.04 UI (14 Mar 2026)
+- ФввAdd menu for 
+
+
+--------------------
 3.03 UI (03 Mar 2026)
 
 - Fixed boot-time log noise by disabling login accounting logs (wtmp, btmp, lastlog) via tmpfiles to reduce SD-card writes
@@ -60,7 +65,9 @@ Latest build for  Banana Pi M1 and Cubieboard A10:
 <img width="700" alt="image" src="https://github.com/user-attachments/assets/839ce5c1-3f35-4918-899b-42a0ee5e1f53" />
 <img width="700" alt="image" src="https://github.com/user-attachments/assets/3d4440ed-98fb-48ae-bc4f-562bcbb2cb51" />
 <img width="700" alt="image" src="https://github.com/user-attachments/assets/07968ff6-4779-4940-8b68-db03c75266bc" />
-<img width="700" alt="image" src="https://github.com/user-attachments/assets/61af282b-cbab-41da-bfd0-d1d282aae6a2" />
+
+
+
 
 
 Audio engine:
