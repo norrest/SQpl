@@ -12,42 +12,41 @@ sh /home/volumio/unmute.sh >/dev/null 2>&1 || true
 echo "flush startup settings"
 fi
 
+set_governor() {
+for cpu in /sys/devices/system/cpu/cpu[0-9]*; do
+  [ -w "$cpu/cpufreq/scaling_governor" ] || continue
+  echo -n "$1" > "$cpu/cpufreq/scaling_governor" 2>/dev/null || true
+done
+}
 
 ##################
 # sound profiles #
 ##################
 
-# default
-if [ "$1" == "default" ]; then
-echo -n ondemand > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-/etc/init.d/rsyslog stop
+if [ "$1" = "default" ]; then
+set_governor ondemand
 echo 0 > /proc/sys/vm/swappiness
 echo noop > /sys/block/mmcblk0/queue/scheduler
 echo 20 > /proc/sys/vm/dirty_ratio
-echo 20 > /proc/sys/vm/dirty_background_ratio # увеличили страничный кеш 
+echo 20 > /proc/sys/vm/dirty_background_ratio
 echo "flush DEFAULT sound profile"
 fi
 
-
-if [ "$1" == "Eco-Mode" ]; then
-echo -n conservative > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-/etc/init.d/rsyslog stop
+if [ "$1" = "Eco-Mode" ]; then
+set_governor conservative
 echo 0 > /proc/sys/vm/swappiness
 echo noop > /sys/block/mmcblk0/queue/scheduler
 echo 20 > /proc/sys/vm/dirty_ratio
-echo 20 > /proc/sys/vm/dirty_background_ratio # увеличили страничный кеш 
-echo "flush Eco-Mod sound profile"
+echo 20 > /proc/sys/vm/dirty_background_ratio
+echo "flush Eco-Mode sound profile"
 fi
 
-
-# dev
-if [ "$1" == "dev" ]; then
+if [ "$1" = "dev" ]; then
 echo "flush DEV sound profile 'fake'"
 fi
 
-
-if [ "$1" == "" ]; then
-echo "Orion Optimize Script v$ver" 
-echo "Usage: $0 {default|beta1|mod1|mod2} {startup}"
+if [ -z "$1" ]; then
+echo "Orion Optimize Script v$ver"
+echo "Usage: $0 {default|Eco-Mode|dev} {startup}"
 exit 1
 fi
