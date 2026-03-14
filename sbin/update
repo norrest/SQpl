@@ -32,7 +32,7 @@ echo "${RED}[+] Install files${RESET}"
 rm -rf /etc/apt/sources.list.d/* 2>/dev/null || true
 cp -Rf /update/tmpi/etc/* /etc/
 cp -Rf /update/tmpi/var/* /var/
-cp -Rf /update/tmpi/sbin/* /sbin/
+[ -d /update/tmpi/sbin ] && cp -a /update/tmpi/sbin/. /sbin/
 cp -Rf /update/tmpi/bin/* /bin/
 cp -Rf /update/tmpi/usr/* /usr/
 cp -f /update/tmpi/50x.html /usr/share/nginx/html/
