@@ -97,7 +97,16 @@ The website will be updated with releases, documentation, and notes.
 Source code (GitHub):
 https://github.com/norrest/SQpl
 
-Dowloads (sourceforge.net):
+## Download IMG firmware files
+
+Prebuilt StereoQ Player IMG firmware files are available on SourceForge for the following boards:
+
+- Cubietruck
+- Cubieboard A20
+- Cubieboard A10
+- Banana Pi M1
+
+Download page:
 https://sourceforge.net/projects/strereoq/
 
 Music (Dj):
