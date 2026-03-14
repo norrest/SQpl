@@ -74,30 +74,7 @@ function backendRequest() {
     });
 }
 
-function backendRequestSpop() {
-    $.ajax({
-        type : 'GET',
-        url : '_player_engine_spop.php?state=' + GUI.SpopState['state'],
-        async : true,
-        cache : false,
-        success : function(data) {
-			if (data != '') {
-				GUI.SpopState = data;
-				renderUI();
-	            backendRequestSpop();
-			} else {
-				setTimeout(function() {
-					backendRequestSpop();
-				}, 5000);
-			}
-        },
-        error : function() {
-            setTimeout(function() {
-                backendRequestSpop();
-            }, 5000);
-        }
-    });
-}
+
 
 function renderUI() {
 	if (GUI.SpopState['state'] == 'play' || GUI.SpopState['state'] == 'pause') {
@@ -718,37 +695,5 @@ function randomScrollDB() {
 var myFailCounter = 1;
 
 function backendRequestSpop() {
-    $.ajax({
-        type : 'GET',
-        url : '_player_engine_spop.php?state=' + GUI.SpopState['state'],
-        async : true,
-        cache : false,
-        success : function(data) {
-         if (data != '') {
-            myFailCounter = 1;
-            GUI.SpopState = data;
-            $('#loader').hide();
-            renderUI();
-               backendRequestSpop();
-         } else {
-            myFailCounter = 1;
-            $('#loader').hide();
-            setTimeout(function() {
-               backendRequestSpop();
-            }, 5000);
-         }
-        },
-        error : function() {
-            setTimeout(function() {
-                if (myFailCounter == 0){
-                     GUI.state = 'disconnected';
-                   $('#loader').show();
-                   $('#countdown-display').countdown('pause');
-                } else {
-                     myFailCounter = myFailCounter - 1;
-                }
-              backendRequestSpop();
-            }, 5000);
-        }
-    });
+    return;
 }
