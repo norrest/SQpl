@@ -7,156 +7,226 @@
 
 <style>
 :root{
-  --bg0:#2b3137;
-  --bg1:#3a424c;
-  --panel:rgba(255,255,255,.06);
-  --panel2:rgba(17,24,31,.90);
   --line:rgba(255,255,255,.12);
   --text:rgba(255,255,255,.92);
   --muted:rgba(255,255,255,.70);
-  --muted2:rgba(255,255,255,.52);
-  --accent:#14E681;
-  --accent2:#4BBE87;
   --radius:16px;
-  --radius2:12px;
   --shadow:0 14px 40px rgba(0,0,0,.45);
+  --green:#18c776;
+  --green-hover:#1ed684;
+  --panel-dark:rgba(17,24,31,.88);
+  --panel-head:rgba(24,28,33,.58);
+  --panel-foot:rgba(24,28,33,.50);
 }
 
-/* Apply dark style only to these modals */
+/* only colors and look, no modal positioning */
 #service-menu-modal,
 #poweroff-modal,
 #webradio-modal{
-  background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  color: var(--text);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  color:var(--text);
 }
 
-/* Header */
 #service-menu-modal .modal-header,
 #poweroff-modal .modal-header,
 #webradio-modal .modal-header{
-  background: rgba(24,28,33,.55);
-  border-bottom: 1px solid rgba(255,255,255,.08);
-  border-radius: var(--radius) var(--radius) 0 0;
+  background:var(--panel-head);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  border-radius:var(--radius) var(--radius) 0 0;
 }
 
 #service-menu-modal .modal-header h3,
 #poweroff-modal .modal-header h3,
 #webradio-modal .modal-header h3{
-  color: var(--text);
-  font-weight: 800;
-  letter-spacing: .2px;
+  color:var(--text);
+  font-weight:800;
+  letter-spacing:.2px;
 }
 
-/* Close button */
 #service-menu-modal .close,
 #poweroff-modal .close,
 #webradio-modal .close{
-  color: rgba(255,255,255,.85);
-  opacity: .75;
-  text-shadow: none;
+  color:#fff;
+  opacity:.8;
+  text-shadow:none;
 }
 
 #service-menu-modal .close:hover,
 #poweroff-modal .close:hover,
 #webradio-modal .close:hover{
-  opacity: 1;
+  opacity:1;
 }
 
-/* Body */
 #service-menu-modal .modal-body,
 #poweroff-modal .modal-body,
 #webradio-modal .modal-body{
-  background: rgba(17,24,31,.55);
+  background:var(--panel-dark);
+  color:var(--text);
 }
 
+/* only remove stupid scroll from service menu */
 #service-menu-modal .modal-body.service-menu{
-  padding: 18px 22px;
+  max-height:none !important;
+  overflow:visible !important;
+  padding:18px 20px 16px;
 }
 
-/* Section styling */
-#service-menu-modal .section{ margin-bottom: 10px; }
+#service-menu-modal .section{
+  margin-bottom:10px;
+}
 
 #service-menu-modal .section-title{
-  font-weight: 800;
-  font-size: 14px;
-  color: var(--text);
-  margin: 0 0 10px;
-  letter-spacing: .2px;
+  font-weight:800;
+  font-size:14px;
+  color:var(--text);
+  margin:0 0 8px;
 }
 
 #service-menu-modal .section-hint{
-  font-size: 12px;
-  color: var(--muted);
-  margin: 0 0 12px;
-  line-height: 1.25;
+  font-size:12px;
+  color:var(--muted);
+  margin:6px 0 12px;
+  line-height:1.35;
 }
 
-/* Divider */
 #service-menu-modal .soft-hr{
-  margin: 12px 0 14px;
-  border: 0;
-  border-top: 1px solid rgba(255,255,255,.10);
+  margin:10px 0 14px;
+  border:0;
+  border-top:1px solid rgba(255,255,255,.10);
 }
 
-/* Buttons inside service menu */
+/* buttons */
 #service-menu-modal .btn-service{
-  margin: 0 0 6px;
-  text-align: center;
-  border-radius: 14px;
-  font-weight: 800;
+  margin:0 0 6px;
+  padding:11px 14px;
+  font-size:14px;
+  line-height:1.25;
+  text-align:center;
+  border-radius:12px;
+  font-weight:800;
+  white-space:normal;
 }
 
-/* Green primary like previous page */
-#service-menu-modal .btn.btn-primary{
-  background: linear-gradient(180deg, rgba(20,230,129,.95), rgba(75,190,135,.92));
-  border-color: rgba(20,230,129,.45);
-  color: rgba(255,255,255,.92);
-  box-shadow: 0 10px 22px rgba(20,230,129,.16);
+#service-menu-modal .btn.btn-primary,
+#poweroff-modal .btn.btn-primary,
+#webradio-modal .btn.btn-primary{
+  background:var(--green) !important;
+  border-color:var(--green) !important;
+  color:#fff !important;
+  background-image:none !important;
+  text-shadow:none !important;
+  box-shadow:none !important;
 }
 
-#service-menu-modal .btn.btn-primary:hover{ filter: brightness(1.03); }
-#service-menu-modal .btn.btn-primary:active{ transform: translateY(1px); }
-
-/* Default button tuned for dark UI */
-#service-menu-modal .btn.btn-default{
-  background: rgba(255,255,255,.06);
-  border-color: rgba(255,255,255,.16);
-  color: rgba(255,255,255,.92);
-  box-shadow: 0 10px 22px rgba(0,0,0,.22);
+#service-menu-modal .btn.btn-primary:hover,
+#poweroff-modal .btn.btn-primary:hover,
+#webradio-modal .btn.btn-primary:hover{
+  background:var(--green-hover) !important;
+  border-color:var(--green-hover) !important;
 }
 
-#service-menu-modal .btn.btn-default:hover{
-  background: rgba(255,255,255,.09);
-  border-color: rgba(255,255,255,.22);
-}
-
-/* Warning button still warning but readable on dark */
-#service-menu-modal .btn.btn-warning{
-  color: rgba(255,255,255,.92);
-  box-shadow: 0 10px 22px rgba(0,0,0,.22);
-}
-
-/* Footer */
-#service-menu-modal .modal-footer,
-#poweroff-modal .modal-footer,
-#webradio-modal .modal-footer{
-  background: rgba(24,28,33,.45);
-  border-top: 1px solid rgba(255,255,255,.08);
-  border-radius: 0 0 var(--radius) var(--radius);
-}
-
-/* Footer cancel buttons */
+#service-menu-modal .btn.btn-default,
 #service-menu-modal .modal-footer .btn,
 #poweroff-modal .modal-footer .btn,
 #webradio-modal .modal-footer .btn{
-  background: rgba(255,255,255,.06);
-  border-color: rgba(255,255,255,.16);
-  color: rgba(255,255,255,.92);
-  border-radius: 14px;
-  font-weight: 800;
+  background:rgba(255,255,255,.07) !important;
+  border-color:rgba(255,255,255,.16) !important;
+  color:rgba(255,255,255,.92) !important;
+  background-image:none !important;
+  text-shadow:none !important;
+  box-shadow:none !important;
+  border-radius:12px;
+  font-weight:800;
+}
+
+#service-menu-modal .btn.btn-default:hover,
+#service-menu-modal .modal-footer .btn:hover,
+#poweroff-modal .modal-footer .btn:hover,
+#webradio-modal .modal-footer .btn:hover{
+  background:rgba(255,255,255,.10) !important;
+  border-color:rgba(255,255,255,.22) !important;
+}
+
+#service-menu-modal .btn.btn-warning{
+  color:#fff !important;
+  background-image:none !important;
+  text-shadow:none !important;
+  box-shadow:none !important;
+}
+
+#service-menu-modal .modal-footer,
+#poweroff-modal .modal-footer,
+#webradio-modal .modal-footer{
+  background:var(--panel-foot);
+  border-top:1px solid rgba(255,255,255,.08);
+  border-radius:0 0 var(--radius) var(--radius);
+}
+
+/* webradio fields */
+#webradio-modal label.control-label{
+  color:var(--text);
+  font-weight:700;
+}
+
+#webradio-modal input[type="text"]{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.16);
+  color:var(--text);
+  border-radius:10px;
+  padding:8px 10px;
+  box-shadow:none;
+}
+
+#webradio-modal input[type="text"]:focus{
+  border-color:rgba(24,199,118,.7);
+  box-shadow:none;
+  outline:none;
+}
+
+#service-menu-modal .btn-service{
+  width: 88%;
+  margin: 0 auto 6px;
+}
+
+#poweroff-modal .btn.btn-block{
+  width: 88%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#service-menu-modal .section-hint{
+  width: 88%;
+  margin: 6px auto 12px;
+}
+#service-menu-modal{
+  width: 520px;
+  margin-left: -260px;
+}
+
+#service-menu-modal .section-title,
+#service-menu-modal .section-hint,
+#service-menu-modal .soft-hr{
+  width: 88%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#service-menu-modal .section-title{
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+#service-menu-modal .section-hint{
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+#service-menu-modal .soft-hr{
+  margin-top: 10px;
+  margin-bottom: 14px;
 }
 </style>
 
