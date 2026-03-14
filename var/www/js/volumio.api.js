@@ -713,20 +713,6 @@ function randomScrollDB() {
     customScroll('db', random);
 }
 
-//Social Sharing
-$('a.tweet').click(function(e){
-    var urlTwitter = 'https://twitter.com/home?status=%E2%99%AB%20%23NowPlaying+' + GUI.currentartist.replace(/\s+/g, '+') + '+-+' + GUI.currentsong.replace(/\s+/g, '+') + '+with+%40Volumio+http%3A%2F%2Fvolumio.org%2F+';
-    $('a.tweet').attr('href', urlTwitter);
-});
-$('a.facebook').click(function(e){
-    var urlFacebook = 'https://www.facebook.com/sharer.php?u=http%3A%2F%2Fvolumio.org%2F&display=popup';
-    $('a.facebook').attr('href', urlFacebook);
-});
-$('a.googleplus').click(function(e){
-    var urlGooglePlus = 'https://plus.google.com/share?url=http%3A%2F%2Fvolumio.org%2F';;
-    $('a.googleplus').attr('href', urlGooglePlus);
-});
-
 
 
 var myFailCounter = 1;
