@@ -3,6 +3,10 @@ StereoQ Player is a lightweight music player project (work in progress). It is b
 StereoQ Player is free to use and distributed free of charge.
 It is built on open-source components. Please see the LICENSE file and third-party licenses for details.
 
+Project website:
+https://norrest.github.io/StereoQ/
+The website will be updated with releases, documentation, and notes.
+
 --------------------
 3.04 UI (14 Mar 2026)
 
@@ -73,7 +77,10 @@ Latest build for  Banana Pi M1 and Cubieboard A10:
 - USB implicit feedback (implicit_fb): added as a configurable option in the UI and stored persistently. This enables the driver’s implicit feedback mode for specific asynchronous USB DACs that can suffer from sync drift or periodic glitches without it.
 
 - USB auto clock (autoclock): added as a configurable option in the UI and stored persistently. This controls automatic clock selection for UAC2 devices and is intended to improve stability with DACs that behave differently depending on clock selection behavior.
-
+  
+- Audio engine:
+Patched RT MPD (older, stable version that runs reliably) with some modules disabled for better performance and simplicity
+Additional system tweaks, updated Linux kernel, and updated ALSA libraries
 
 --------------------
 <img width="700" alt="image" src="https://github.com/user-attachments/assets/df766192-6bb3-4599-92e3-79e29f2af3b2" />
@@ -81,18 +88,6 @@ Latest build for  Banana Pi M1 and Cubieboard A10:
 <img width="700" alt="image" src="https://github.com/user-attachments/assets/839ce5c1-3f35-4918-899b-42a0ee5e1f53" />
 <img width="700" alt="image" src="https://github.com/user-attachments/assets/3d4440ed-98fb-48ae-bc4f-562bcbb2cb51" />
 <img width="700" alt="image" src="https://github.com/user-attachments/assets/07968ff6-4779-4940-8b68-db03c75266bc" />
-
-
-Audio engine:
-Patched RT MPD (older, stable version that runs reliably) with some modules disabled for better performance and simplicity
-Additional system tweaks, updated Linux kernel, and updated ALSA libraries
-
-Project website:
-https://norrest.github.io/StereoQ/
-The website will be updated with releases, documentation, and notes.
-
-Source code (GitHub):
-https://github.com/norrest/SQpl
 
 ## Download IMG firmware files
 
@@ -105,7 +100,6 @@ Prebuilt StereoQ Player IMG firmware files are available on SourceForge for the 
 
 Download page:
 https://sourceforge.net/projects/strereoq/
-
 
 Storage:
 StereoQ Player supports internal SATA drives. Format the drive as EXT4 and it will be mounted automatically at /mnt/USB.
