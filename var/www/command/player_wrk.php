@@ -333,7 +333,7 @@ session_start();
 	switch($_SESSION['w_queue']) {
 
 		case 'reboot':
-		$cmd = 'rm -f /tmp/.restart_mpd; killall shairport-sync >/dev/null 2>&1 || true; /usr/bin/mpc stop >/dev/null 2>&1 || true; sync; /sbin/reboot';
+		$cmd = 'rm -f /tmp/.restart_mpd; killall shairport-sync >/dev/null 2>&1 || true; /usr/bin/mpc stop >/dev/null 2>&1 || true; sync; /bin/sh -c "(sleep 1; /sbin/reboot) >/dev/null 2>&1 &"';
 		sysCmd($cmd);
 		break;
 		
@@ -342,7 +342,7 @@ session_start();
 		break;
 		
 		case 'poweroff':
-		$cmd = 'rm -f /tmp/.restart_mpd; killall shairport-sync >/dev/null 2>&1 || true; /usr/bin/mpc stop >/dev/null 2>&1 || true; sync; /sbin/poweroff';
+		$cmd = 'rm -f /tmp/.restart_mpd; killall shairport-sync >/dev/null 2>&1 || true; /usr/bin/mpc stop >/dev/null 2>&1 || true; sync; /bin/sh -c "(sleep 1; /sbin/poweroff) >/dev/null 2>&1 &"';
 		sysCmd($cmd);
 		break;
 		
