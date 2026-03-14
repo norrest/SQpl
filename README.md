@@ -7,10 +7,8 @@ It is built on open-source components. Please see the LICENSE file and third-par
 3.04 UI (14 Mar 2026)
 - Added a new Service Menu entry to update Shairport Sync for AirPlay
 - Added support for updating Shairport Sync from version 2.4 to version 3.3.9
-- Fixed reboot and power-off from the Web UI so they now work correctly even when AirPlay is enabled
-- Added a reboot waiting page after reboot and power-off commands instead of falling back to an error page
+- Fixed reboot and power-off from the Web UI so they now work correctly when AirPlay is enabled
 - Fixed the Service Menu popup styling to match the new StereoQ UI look
-- Removed the unnecessary scrollbar in the Service Menu popup
 - Fixed the Browse page JavaScript error "showtype is not defined"
 - Added a Web UI version status hint to StereoQ Player Info
 
