@@ -13,41 +13,39 @@ playerSession('unlock',$db,'','');
 if (isset($_POST['syscmd'])){
 	switch ($_POST['syscmd']) {
 
-	case 'reboot':
-	
-			if ($_SESSION['w_lock'] != 1 && $_SESSION['w_queue'] == '') {
-			// start / respawn session
-			if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-			$_SESSION['w_queue'] = "reboot";
-			$_SESSION['w_active'] = 1;
-			// set UI notify
-			$_SESSION['notify']['title'] = 'REBOOT';
-			$_SESSION['notify']['msg'] = 'reboot player initiated...';
-			// unlock session file
-			playerSession('unlock');
-			} else {
-			echo "background worker busy";
-			}
-		// unlock session file
-		playerSession('unlock');
-		break;
-		
-	case 'poweroff':
-	
-			if ($_SESSION['w_lock'] != 1 && $_SESSION['w_queue'] == '') {
-			// start / respawn session
-			if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-			$_SESSION['w_queue'] = "poweroff";
-			$_SESSION['w_active'] = 1;
-			// set UI notify
-			$_SESSION['notify']['title'] = 'SHUTDOWN';
-			$_SESSION['notify']['msg'] = 'shutdown player initiated...';
-			// unlock session file
-			playerSession('unlock');
-			} else {
-			echo "background worker busy";
-			}
-		break;
+case 'reboot':
+
+        if ($_SESSION['w_lock'] != 1 && $_SESSION['w_queue'] == '') {
+        session_start();
+        $_SESSION['w_queue'] = "reboot";
+        $_SESSION['w_active'] = 1;
+        $_SESSION['notify']['title'] = 'REBOOT';
+        $_SESSION['notify']['msg'] = 'reboot player initiated...';
+        playerSession('unlock');
+        header('Location: /reboot.html');
+        exit;
+        } else {
+        echo "background worker busy";
+        }
+        playerSession('unlock');
+        break;
+
+case 'poweroff':
+
+        if ($_SESSION['w_lock'] != 1 && $_SESSION['w_queue'] == '') {
+        session_start();
+        $_SESSION['w_queue'] = "poweroff";
+        $_SESSION['w_active'] = 1;
+        $_SESSION['notify']['title'] = 'SHUTDOWN';
+        $_SESSION['notify']['msg'] = 'shutdown player initiated...';
+        playerSession('unlock');
+        header('Location: /reboot.html');
+        exit;
+        } else {
+        echo "background worker busy";
+        }
+        playerSession('unlock');
+        break;
 
 	case 'mpdrestart':
 	
