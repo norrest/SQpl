@@ -681,9 +681,6 @@ function randomScrollDB() {
 }
 
 
-
-var myFailCounter = 1;
-
 function backendRequestSpop() {
     return;
 }
