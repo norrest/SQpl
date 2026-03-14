@@ -1,0 +1,75 @@
+#!/bin/sh
+set -e
+
+export GIT_SSL_NO_VERIFY=true
+
+RED=$(tput setaf 1 2>/dev/null || echo "")
+BLUE=$(tput setaf 4 2>/dev/null || echo "")
+RESET=$(tput sgr 0 2>/dev/null || echo "")
+
+TARGET_VER="3.3.9"
+BIN_URL="https://github.com/norrest/SQpl/raw/refs/heads/main/var/www/shairport-sync-3.3.9-jessie-armhf.tar.gz"
+LIB_URL="https://github.com/norrest/SQpl/raw/refs/heads/main/var/www/shairport-sync-libstdcpp-jessie-armhf.tar.gz"
+
+BIN_PATH="/usr/local/bin/shairport-sync"
+TMPDIR="/update/shairport-sync-update"
+BACKUP_PATH="/usr/local/bin/shairport-sync.bak.$(date +%F-%H%M%S)"
+
+echo "${RED}[+] Check current version${RESET}"
+if [ -x "$BIN_PATH" ]; then
+  CURRENT_VER="$($BIN_PATH -V 2>/dev/null || echo unknown)"
+else
+  CURRENT_VER="not installed"
+fi
+echo "${BLUE}Current: ${CURRENT_VER}${RESET}"
+
+if echo "$CURRENT_VER" | grep -q "^${TARGET_VER}-"; then
+  echo "${BLUE}[=] Version ${TARGET_VER} already installed${RESET}"
+  exit 0
+fi
+
+echo "${RED}[+] Stop Shairport Sync${RESET}"
+killall shairport-sync >/dev/null 2>&1 || true
+sleep 1
+
+echo "${RED}[+] Prepare temp directory${RESET}"
+rm -rf "$TMPDIR"
+mkdir -p "$TMPDIR"
+
+echo "${RED}[+] Backup old binary${RESET}"
+if [ -x "$BIN_PATH" ]; then
+  cp -a "$BIN_PATH" "$BACKUP_PATH"
+  echo "${BLUE}Backup: ${BACKUP_PATH}${RESET}"
+fi
+
+echo "${RED}[+] Download new binary${RESET}"
+GIT_SSL_NO_VERIFY=true wget --no-check-certificate -O "$TMPDIR/shairport-sync.tar.gz" "$BIN_URL"
+
+echo "${RED}[+] Install new binary${RESET}"
+tar xzf "$TMPDIR/shairport-sync.tar.gz" -C /
+
+echo "${RED}[+] Check libstdc++.so.6${RESET}"
+if ! ldconfig -p 2>/dev/null | grep -q 'libstdc++.so.6'; then
+  echo "${RED}[+] Download libstdc++ runtime${RESET}"
+  GIT_SSL_NO_VERIFY=true wget --no-check-certificate -O "$TMPDIR/libstdcpp.tar.gz" "$LIB_URL"
+  tar xzf "$TMPDIR/libstdcpp.tar.gz" -C /
+fi
+
+echo "${RED}[+] Refresh linker cache${RESET}"
+ldconfig
+
+echo "${RED}[+] Verify dependencies${RESET}"
+if ldd "$BIN_PATH" | grep -qi "not found"; then
+  echo "${RED}[!] Missing libraries${RESET}"
+  ldd "$BIN_PATH" || true
+  exit 1
+fi
+
+echo "${RED}[+] Show installed version${RESET}"
+NEW_VER="$($BIN_PATH -V 2>/dev/null || echo unknown)"
+echo "${BLUE}Installed: ${NEW_VER}${RESET}"
+
+echo "${RED}[+] Cleanup${RESET}"
+rm -rf "$TMPDIR"
+
+echo "${BLUE}[+] Done${RESET}"
