@@ -83,9 +83,6 @@ Latest build for  Banana Pi M1 and Cubieboard A10:
 <img width="700" alt="image" src="https://github.com/user-attachments/assets/07968ff6-4779-4940-8b68-db03c75266bc" />
 
 
-
-
-
 Audio engine:
 Patched RT MPD (older, stable version that runs reliably) with some modules disabled for better performance and simplicity
 Additional system tweaks, updated Linux kernel, and updated ALSA libraries
@@ -109,8 +106,6 @@ Prebuilt StereoQ Player IMG firmware files are available on SourceForge for the 
 Download page:
 https://sourceforge.net/projects/strereoq/
 
-Music (Dj):
-https://www.youtube.com/@StereoQ-MUSIC
 
 Storage:
 StereoQ Player supports internal SATA drives. Format the drive as EXT4 and it will be mounted automatically at /mnt/USB.
@@ -127,4 +122,11 @@ This project does not use the newer Volumio 2 code or configuration. Volumio 2 u
 SSH access:
 Default credentials are root / rootfs.
 For security, change the default password after the first login.
+
+--------------------
+
+Music (DJ) is my hobby:
+https://www.youtube.com/@StereoQ-MUSIC
+
+I would really appreciate your like and subscription.
 
