@@ -21,6 +21,48 @@ function h($s) {
  * Light output block
  * Important: do NOT use <pre> here because the theme may style <pre> as black
  */
+ function normalize_ui_ver($s) {
+    $s = trim((string)$s);
+    $s = preg_replace('/\s+/', ' ', $s);
+    $s = preg_replace('/\s*UI\s*$/i', '', $s);
+    return trim($s);
+}
+
+function get_remote_ui_version_status($localVer) {
+    $url = 'https://raw.githubusercontent.com/norrest/SQpl/main/etc/VAMP_VER';
+
+    // For a single raw file GIT_SSL_NO_VERIFY=true does not affect wget/curl.
+    // The direct equivalent here is --no-check-certificate.
+    $remoteRaw = trim(shell_exec(
+        "wget -T 4 -t 1 -qO- --no-check-certificate " . escapeshellarg($url) . " 2>/dev/null"
+    ));
+
+    if ($remoteRaw === '') {
+        return array(
+            'remote_raw'  => '',
+            'remote_norm' => '',
+            'status'      => 'cant chek update'
+        );
+    }
+
+    $localNorm  = normalize_ui_ver($localVer);
+    $remoteNorm = normalize_ui_ver($remoteRaw);
+
+    if ($localNorm !== '' && $remoteNorm !== '' && $localNorm === $remoteNorm) {
+        return array(
+            'remote_raw'  => $remoteRaw,
+            'remote_norm' => $remoteNorm,
+            'status'      => 'You have the latest Web UI version'
+        );
+    }
+
+    return array(
+        'remote_raw'  => $remoteRaw,
+        'remote_norm' => $remoteNorm,
+        'status'      => 'A newer Web UI version is available. Update it via Service Menu → Update Web Interface'
+    );
+}
+ 
 function light_block($s) {
     $s = trim((string)$s);
     if ($s === '') return '<div>-</div>';
@@ -188,6 +230,8 @@ if (!hashCFG('check_net', $db)) {
 
     $mpdver = sh("mpd -V | head -n 1");
     $webver = sh("cat /etc/VAMP_VER");
+	$webver_check = get_remote_ui_version_status($webver);
+	$webver_msg   = $webver_check['status'];
     $kernelver = sh("uname -r -m -o");
     $alsalibver = sh("grep -Eio 'VERSION_STR[^\\n]*' /usr/include/alsa/version.h | head -n 1");
 
@@ -218,9 +262,20 @@ if (!hashCFG('check_net', $db)) {
             $_eth0 .= "<br>\n";
         }
 
-        $_eth0 .= "<div><font size=3 color=#100f40>Web UI version:</font></div>\n";
-        $_eth0 .= "<div>" . h($webver) . "</div>\n";
-        $_eth0 .= "<br>\n";
+$_eth0 .= "<div><font size=3 color=#100f40>Web UI version:</font></div>\n";
+
+if ($webver_msg === 'You have the latest Web UI version') {
+    $webver_color = '#2f8f2f';
+} elseif ($webver_msg === 'A newer Web UI version is available. Update it via Service Menu → Update Web Interface') {
+    $webver_color = '#0066cc';
+} elseif ($webver_msg === 'Cannot check for updates') {
+    $webver_color = '#cc0000';
+} else {
+    $webver_color = '#666666';
+}
+
+$_eth0 .= "<div>" . h($webver) . " <span style=\"color:" . h($webver_color) . ";margin-left:8px;\">" . h($webver_msg) . "</span></div>\n";
+$_eth0 .= "<br>\n";
 
         // Dark only here
         $_eth0 .= "<div><font size=3 color=#100f40>USB devices:</font></div>\n";
