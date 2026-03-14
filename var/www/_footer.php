@@ -202,7 +202,18 @@
     Update web interface
   </button>
   <div class="section-hint">Downloads and installs the latest web-interface version</div>
-
+  
+  <button id="airplay-update"
+          type="submit"
+          name="airplay-update"
+          formtarget="_blank"
+          formaction="shairport-sync-update.php"
+          class="btn btn-primary btn-large btn-block btn-service">
+    <i class="fa fa-cloud-download sx"></i>
+    AirPlay Update
+  </button>
+  <div class="section-hint">Downloads and installs the new shairport sync library</div>
+  
   <button id="kernel-update"
           type="submit"
           name="kernel_update"
