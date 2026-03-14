@@ -2,6 +2,7 @@
  */
 
  // Global GUI object
+var showtype = '';
  GUI = {
     MpdState: 0,
 	SpopState: 0,
@@ -413,6 +414,7 @@ function getDB(cmd, path, browsemode, uplevel){
 }
 
 function populateDB(data, path, uplevel, keyword){
+	showtype = '';
 	if (path) GUI.currentpath = path;
 	var DBlist = $('ul.database');
 	DBlist.html('');
