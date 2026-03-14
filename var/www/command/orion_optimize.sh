@@ -8,7 +8,6 @@ killall -q ntpd 2>/dev/null || true
 killall -q thd 2>/dev/null || true
 killall -q cron 2>/dev/null || true
 killall -q atd 2>/dev/null || true
-sh /home/volumio/unmute.sh >/dev/null 2>&1 || true
 echo "flush startup settings"
 fi
 
