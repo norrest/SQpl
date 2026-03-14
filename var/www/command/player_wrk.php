@@ -50,7 +50,6 @@ $db = 'sqlite:/var/www/db/player.db';
 // --- INITIALIZE ENVIRONMENT --- //
 // change /run and session files for correct session file locking
 sysCmd('chmod 777 /run');
-sysCmd('bash /bin/chkdata');
 
 // reset DB permission
 sysCmd('chmod -R 777 /var/www/db');
