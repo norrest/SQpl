@@ -171,16 +171,6 @@ function getPlaylist(json){
 }
 
 
-
-function parsePath(str) {
-  if (typeof str !== 'string' || !str.length) return ''
-  var cutpos = str.lastIndexOf('/')
-  if (cutpos != -1) return str.slice(0, cutpos)
-  return ''
-}
-
-
-
 function parsePath(str) {
     if (typeof str !== 'string' || !str.length) return '';
     var cutpos = str.lastIndexOf("/");
